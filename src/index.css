@@ -11,3 +11,25 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+:root {
+  --colors_dark-green: #184623;
+  --colors_green: #4a8f5d;
+  --colors_light-green: #86c994;
+  --colors_yellow: #ffc919;
+  --colors_ivory: #f3efcd;
+  --colors_white: #ffffff;
+  --colors_light-grey: #f2f2f2;
+  --colors_dark-blue: #0033a1;
+  --colors_blue: #2f8dcc;
+  --colors_light-blue: #90c6ea;
+
+  --sizing_nav-height: 75px;
+  --sizing_icon-height: 25px;
+
+  --border-radius_card: 3px;
+  --border-radius_button: 6px;
+
+  --font-size_card-title: 18px;
+  --font-weight_card-title: 600;
+}
