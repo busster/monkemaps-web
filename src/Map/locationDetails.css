@@ -1,0 +1,30 @@
+
+.Map-Location-Details__back {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--colors_light-grey);
+  border-radius: var(--border-radius_button);
+  background-color: var(--colors_white);
+  box-sizing: border-box;
+  padding: 0.75rem;
+  margin: 1rem;
+  cursor: pointer;
+}
+.Map-Location-Details__back-icon {
+  height: var(--sizing_icon-height);
+  width: var(--sizing_icon-height);
+  margin-right: 0.5rem;
+}
+
+.Map-Location-Details__header {
+  display: flex;
+  /* justify-content: space-between; */
+}
+
+.Map-Location-Details__body-container {
+  margin: 1rem;
+}
+.Map-Location-Details__title {
+  text-align: center;
+}

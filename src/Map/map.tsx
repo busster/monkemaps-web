@@ -69,6 +69,14 @@ const useMap = () => {
 
   const [markers, setMarkers] = useState<mapboxgl.Marker[]>([]);
   const [visibleMarkers, setVisibleMarkers] = useState<Pin[]>([]);
+  const [hoveredMarker, setHoveredMarker] = useState<Pin>();
+
+  const useLeave = (pin: Pin) => useCallback(() => {
+    console.log(hoveredMarker)
+    if (pin.id === hoveredMarker?.id) {
+      setHoveredMarker(undefined)
+    }
+  }, [hoveredMarker])
 
   const [state] = useActor(mapService);
   // console.log(state.value)
@@ -140,7 +148,15 @@ const useMap = () => {
       setMarkers([]);
       const newMarkers = pins.map(
         pin => new mapboxgl.Marker(
-          Marker({ pin, handleOnclick: createMarkerClickHandler(navigate, pin) })
+          Marker({
+            pin,
+            handleOnclick: createMarkerClickHandler(navigate, pin),
+            handleOnmouseenter: () => {
+              document.getElementById(`Map-LocationList__item-${pin.id}`)?.scrollIntoView({ behavior: 'smooth' });
+              // setHoveredMarker(pin);
+            },
+            handleOnmouseleave: () => {},
+          })
         ).setLngLat(pin.coordinates)
       )
       newMarkers.forEach(marker => marker.addTo(map.current as mapboxgl.Map))
@@ -168,12 +184,13 @@ const useMap = () => {
     send,
     reload: () => {
       send('RELOAD');
-    }
+    },
+    hoveredMarker
   }
 }
 
 export const Map: React.FunctionComponent = (): JSX.Element => {
-  const { container, visibleMarkers, state, reload } = useMap();
+  const { container, visibleMarkers, state, reload, hoveredMarker } = useMap();
   const [listOpen, setListOpen] = useState(false);
 
   return (
@@ -183,11 +200,11 @@ export const Map: React.FunctionComponent = (): JSX.Element => {
         { listOpen ? 'View Map' : 'View List'}
       </button>
       <div className={`Map-Wrapper__list ${ listOpen ? 'Map-Wrapper__list--expanded' : '' }`}>
-        <LocationList loading={state.matches('loading')} locations={visibleMarkers} />
+        <LocationList loading={state.matches('loading')} locations={visibleMarkers} activeLocation={hoveredMarker} />
       </div>
       <div className='Map-Wrapper__view'>
         <button className='Map-Wrapper__view-refresher' onClick={() => reload()}>
-        <img className='Map-Wrapper__view-refresher-icon' src='/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-78.svg' alt='MonkeDAO Map List Refresh Icon' />
+          <img className='Map-Wrapper__view-refresher-icon' src='/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-78.svg' alt='MonkeDAO Map List Refresh Icon' />
           Refresh
         </button>
         <div className='Map' ref={container}></div>

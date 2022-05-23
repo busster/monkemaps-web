@@ -56,7 +56,7 @@ const fetchEvents = async () => {
       name: 'Thing',
       type: 'Person',
       coordinates: [-122.417395, 47.662108],
-    }
+    },
   ]
 }
 

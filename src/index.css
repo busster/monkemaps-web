@@ -26,10 +26,13 @@ code {
 
   --sizing_nav-height: 75px;
   --sizing_icon-height: 25px;
+  --sizing_marker-height: 35px;
+  --sizing_popover-offset: 30px;
 
   --border-radius_card: 3px;
   --border-radius_button: 6px;
 
   --font-size_card-title: 18px;
+  --font-size_marker-title: 14px;
   --font-weight_card-title: 600;
 }

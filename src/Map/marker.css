@@ -1,6 +1,36 @@
 .mapboxgl-marker {
-  width: 25px;
-  height: 25px;
+  width: var(--sizing_marker-height);
+  height: var(--sizing_marker-height);
   z-index: 1;
   cursor: pointer;
+}
+.Map-Marker--visible {
+  z-index: 2;
+}
+
+.Map-Marker__icon {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+
+.Marker-popover {
+  background-color: white;
+  color: black;
+  display: flex;
+  padding: 1rem;
+  border-radius: 3px;
+  position: absolute;
+  bottom: var(--sizing_popover-offset);
+  z-index: 1000;
+  display: none;
+  transition: all 250ms;
+}
+
+.Marker-popover--visible {
+  display: block;
+}
+
+.Marker-popover > h1 {
+  font-size: var(--font-size_marker-title);
 }
