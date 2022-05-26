@@ -29,9 +29,11 @@ import { MapWrapper, Map, LocationDetails } from './Map';
 import { ConnectWallet } from './ConnectWallet';
 // Default styles that can be overridden by your app
 require('@solana/wallet-adapter-react-ui/styles.css');
+import { UserInformation } from './Profile';
 
 
 export const App = () => {
+  const user = true;
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
   const network = WalletAdapterNetwork.Devnet;
 
@@ -64,30 +66,28 @@ export const App = () => {
                   </Link>
                 </div>
                 <div className='App__nav-links'>
-                  {/* Can add styling to the button for example
-                  const ConnectButton = styled(WalletMultiButton)`
-                      	width: 155px;
-                      	height: 50px;
-                      	background: ${Colors.SECONDARY};
-                      	color: ${Colors.Background} !important;
-                      	font-family: ${Fonts.Bebas};
-                      	font-size: 24px;
-                      	text-transform: uppercase;
-                      	white-space: nowrap;
-                      	border-radius: 0px;
-                      	margin-right: 0px !important;
-                      	&:hover {
-                      		background: ${Colors.SECONDARY};
-                      		color: ${Colors.Background} !important;
-                      	}
-                        `;
-                  */}
-                  <WalletMultiButton />
+                  {
+                    user
+                      ? (
+                        <Link className='App__nav-link' to="/profile">
+                          <img className='App__nav-link-logo' src='/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-67.svg' alt='MonkeDAO Crypto Logo' />
+                          Profile
+                        </Link>
+                      )
+                      : (
+                        // <Link className='App__nav-link' to="/connect-wallet">
+                        //   <img className='App__nav-link-logo' src='/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-66.svg' alt='MonkeDAO Crypto Logo' />
+                        //   Connect Wallet
+                        // </Link>
+                        <WalletMultiButton />
+                      )
+                  }
                 </div>
               </nav>
 
               <Routes>
-                {/* <Route path="/connect-wallet" element={<WalletMultiButton />} /> */}
+                {/* <Route path="/connect-wallet" element={<ConnectWallet />} /> */}
+                <Route path="/profile" element={<UserInformation />} />
                 <Route path="/map" element={<MapWrapper />}>
                   <Route path="" element={<Map />} />
                   <Route path=":locationId" element={<LocationDetails />} />
