@@ -22,7 +22,7 @@ export const LocationList = ({ locations, loading, activeLocation }: LocationLis
     );
   } else if (isEmpty) {
     return (
-      <div className='Map-LocationList'>
+      <div className='Map-LocationList__empty'>
         <div>No visible pins.</div>
       </div>
     );

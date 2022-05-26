@@ -1,5 +1,5 @@
 import React, { FC, useMemo } from 'react';
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { ConnectionProvider, useWallet, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
   GlowWalletAdapter,
@@ -23,17 +23,16 @@ import {
   Link
 } from "react-router-dom";
 
+import '@solana/wallet-adapter-react-ui/styles.css';
 import './App.css';
 
 import { MapWrapper, Map, LocationDetails } from './Map';
-import { ConnectWallet } from './ConnectWallet';
-// Default styles that can be overridden by your app
-require('@solana/wallet-adapter-react-ui/styles.css');
 import { UserInformation } from './Profile';
+import { AppNavBar } from './AppNav/navbar';
 
 
 export const App = () => {
-  const user = true;
+  const user = false;
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
   const network = WalletAdapterNetwork.Devnet;
 
@@ -53,40 +52,16 @@ export const App = () => {
     ],
     [network]
   );
+
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           <Router>
             <div>
-              <nav className='App__nav'>
-                <div className='App__nav-logo-container'>
-                  <Link to="/map">
-                    <img className='App__nav-logo' src='/MonkeDAO_FullLogo_Dk+MidGreen_RGB.png' alt='MonkeDAO Logo' />
-                  </Link>
-                </div>
-                <div className='App__nav-links'>
-                  {
-                    user
-                      ? (
-                        <Link className='App__nav-link' to="/profile">
-                          <img className='App__nav-link-logo' src='/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-67.svg' alt='MonkeDAO Crypto Logo' />
-                          Profile
-                        </Link>
-                      )
-                      : (
-                        // <Link className='App__nav-link' to="/connect-wallet">
-                        //   <img className='App__nav-link-logo' src='/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-66.svg' alt='MonkeDAO Crypto Logo' />
-                        //   Connect Wallet
-                        // </Link>
-                        <WalletMultiButton />
-                      )
-                  }
-                </div>
-              </nav>
+              <AppNavBar />
 
               <Routes>
-                {/* <Route path="/connect-wallet" element={<ConnectWallet />} /> */}
                 <Route path="/profile" element={<UserInformation />} />
                 <Route path="/map" element={<MapWrapper />}>
                   <Route path="" element={<Map />} />

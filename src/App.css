@@ -53,3 +53,11 @@
     margin-right: 0rem;
   }
 }
+
+.wallet-adapter-button:not([disabled]):hover {
+  background-color: var(--colors_green);
+}
+.wallet-adapter-button-trigger {
+  background-color: var(--colors_dark-green);
+  margin-right: 1rem;
+}

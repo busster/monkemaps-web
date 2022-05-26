@@ -5,6 +5,16 @@
   height: 100%;
   background-color: var(--colors_white);
 }
+.Map-LocationList__empty {
+  border-radius: var(--border-radius_card);
+  height: 100%;
+  background-color: var(--colors_white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--colors_dark-green);
+  font-style: italic;
+}
 
 .Map-LocationList__item-link {
   font-style: normal;
