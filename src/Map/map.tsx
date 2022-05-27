@@ -107,11 +107,6 @@ const useMap = () => {
   useEffect(() => {
     if (!container.current) return;
 
-    if (map.current) {
-      send('REPOINT');
-      return;
-    }
-
     const mapbox = new mapboxgl.Map({
       container: container.current,
       style: 'mapbox://styles/mapbox/streets-v11',
@@ -128,6 +123,8 @@ const useMap = () => {
     });
 
     map.current = mapbox;
+
+    send('REPOINT');
   }, [container]);
 
   useEffect(() => {

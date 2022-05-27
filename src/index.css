@@ -19,11 +19,14 @@ code {
   --colors_yellow: #ffc919;
   --colors_ivory: #f3efcd;
   --colors_white: #ffffff;
+  --colors_black: #000;
   --colors_light-grey: #d9d9d9;
   --colors_dark-blue: #0033a1;
   --colors_blue: #2f8dcc;
   --colors_light-blue: #90c6ea;
   --colors_red: #990000;
+  --colors_light-red: #c70000;
+  --colors_dark-red: #700000;
 
   --sizing_nav-height: 75px;
   --sizing_icon-height: 25px;

@@ -1,0 +1,50 @@
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border-radius: var(--border-radius_button);
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border: 1px solid var(--colors_light-grey);
+  background-color: var(--colors_white);
+  color: var(--colors_black);
+  font-weight: 600;
+}
+.button:hover:enabled {
+  background-color: var(--colors_light-grey);
+}
+.button:disabled, button[disabled] {
+  background-color: var(--colors_light-grey);
+  border-color: var(--colors_light-grey);
+  opacity: .75;
+  cursor: default;
+}
+
+.button--save {
+  border: 1px solid var(--colors_green);
+  background-color: var(--colors_green);
+  color: var(--colors_white);
+}
+.button--save:disabled {
+  background-color: var(--colors_light-green);
+  border-color: var(--colors_light-green);
+}
+.button--save:hover:enabled {
+  background-color: var(--colors_dark-green);
+  border-color: var(--colors_dark-green);
+}
+
+.button--delete {
+  border: 1px solid var(--colors_red);
+  background-color: var(--colors_red);
+  color: var(--colors_white);
+}
+.button--delete:disabled {
+  background-color: var(--colors_light-red);
+  border-color: var(--colors_light-red);
+}
+.button--delete:hover:enabled {
+  background-color: var(--colors_dark-red);
+  border-color: var(--colors_dark-red);
+}

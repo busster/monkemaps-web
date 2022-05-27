@@ -1,15 +1,19 @@
 
+.Profile__back-link {
+  text-decoration: none;
+  margin: 1rem;
+}
 .Profile__back {
-  display: flex;
+  /* display: flex;
   justify-content: center;
   align-items: center;
   border: 1px solid var(--colors_light-grey);
   border-radius: var(--border-radius_button);
   background-color: var(--colors_white);
-  box-sizing: border-box;
-  padding: 0.75rem;
-  margin: 1rem;
-  cursor: pointer;
+  box-sizing: border-box; */
+  /* padding: 0.75rem; */
+  
+  /* cursor: pointer; */
 }
 .Profile__back-icon {
   height: var(--sizing_icon-height);
@@ -19,7 +23,7 @@
 
 .Profile__header {
   display: flex;
-  /* justify-content: space-between; */
+  justify-content: space-between;
 }
 
 .Profile__body-container {
@@ -88,17 +92,16 @@
   align-items: center;
 }
 
-.Profile__save {
+.Profile__actions {
+  margin: 1rem;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid var(--colors_light-grey);
-  border-radius: var(--border-radius_button);
-  background-color: var(--colors_white);
-  box-sizing: border-box;
-  padding: 0.75rem;
-  /* margin: 1rem; */
-  cursor: pointer;
+}
+.Profile__actions > *:nth-child(n+2) {
+  margin-left: 1rem;
+}
+
+.Profile__delete {
+  margin-top: 5rem;
 }
 
 @media (max-width: 769px) {
