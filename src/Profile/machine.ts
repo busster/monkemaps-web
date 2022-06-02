@@ -5,7 +5,13 @@ type UserContext = {
   walletId: string,
   lat: number,
   lng: number,
+  nft: NFT,
 };
+
+type NFT = {
+  imageUri: string,
+  id: string,
+}
 
 type INPUT_LAT_EVENT = { type: 'INPUT_LAT', lat: number };
 type INPUT_LNG_EVENT = { type: 'INPUT_LNG', lng: number };
@@ -15,13 +21,18 @@ type UserEvents =
   | { type: 'RESET' }
   | { type: 'DISCONNECT' }
   | INPUT_LAT_EVENT
-  | INPUT_LNG_EVENT;
+  | INPUT_LNG_EVENT
+  | SELECT_MONK_EVENT;
+
+type SELECT_MONK_EVENT = { type: 'SELECT_MONK', nft: NFT };
+
 
 
 const createUserContext = (walletId: string | undefined): UserContext => Object.assign({
   walletId,
   lat: 0,
   lng: 0,
+  nft: {}
 });
 
 const fetchUser = async (context: UserContext) => {
@@ -48,7 +59,9 @@ const createUser = async (context: UserContext) => {
       location: {
         latitude: context.lat,
         longitude: context.lng,
-      }
+      },
+      image: context.nft.imageUri,
+      monkeIds: [context.nft.id]
     })
   });
 
@@ -70,7 +83,9 @@ const updateUser = async (context: UserContext) => {
       location: {
         latitude: context.lat,
         longitude: context.lng,
-      }
+      },
+      image: context.nft.imageUri,
+      monkeIds: [context.nft.id]
     })
   });
 
@@ -152,14 +167,21 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
       },
       on: {
         INPUT_LAT: creatInputLatTransition('create'),
-        INPUT_LNG: createInputLngTransition('create')
+        INPUT_LNG: createInputLngTransition('create'),
+        SELECT_MONK: {
+          actions: ['setNft']
+        }
       }
     },
     display: {
       on: {
         INPUT_LAT: creatInputLatTransition('edit'),
         INPUT_LNG: createInputLngTransition('edit'),
-        DELETE: 'deleteUser'
+        DELETE: 'deleteUser',
+        SELECT_MONK: {
+          target: 'edit.valid',
+          actions: ['setNft']
+        }
       }
     },
     edit: {
@@ -174,7 +196,10 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
       on: {
         RESET: 'loading',
         INPUT_LAT: creatInputLatTransition('edit'),
-        INPUT_LNG: createInputLngTransition('edit')
+        INPUT_LNG: createInputLngTransition('edit'),
+        SELECT_MONK: {
+          actions: ['setNft']
+        }
       }
     },
     error: {},
@@ -216,6 +241,9 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
     }),
     setLng: assign({
       lng: (context, event) => (event as INPUT_LNG_EVENT).lng
+    }),
+    setNft: assign({
+      nft: (context, event) => {console.log(event); return (event as SELECT_MONK_EVENT).nft}
     })
   },
   guards: {
