@@ -18,12 +18,17 @@ export const Marker = ({ pin, handleOnclick, handleOnmouseenter, handleOnmousele
   const icon = document.createElement('img');
   let src = '';
   switch(pin.type) {
-    case 'Event':
+    case 'MonkeDAO Discord':
+    case 'Monke_Talks Podcast':
+    case 'Monke Country Club':
+    case 'MonkeDAO Twitter':
+    case 'MonkeDAO Meet-up':
+    case 'Mainstream Event':
+    case 'MonkeDAO Event':
       src = '/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-53.svg';
       break;
-    case 'Person':
-      src = '/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-52.svg';
-      break;
+      // src = '/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-52.svg';
+      // break;
   }
   icon.src = src;
   icon.className = 'Map-Marker__icon';
