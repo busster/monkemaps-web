@@ -19,6 +19,8 @@ export const UserInformation = (): JSX.Element => {
   const [nftArray, setNftArray] = useState<NftData[]>([]);
   const walletId = publicKey?.toBase58();
 
+  console.log(nftArray)
+
   const [state, send] = useMachine(() =>
     createUserMachine(walletId)
   );

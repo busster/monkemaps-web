@@ -1,10 +1,17 @@
 import { assign, ActionObject, createMachine, TransitionsConfig, interpret, spawn, ActorRef } from "xstate";
 
 import { customAlphabet } from 'nanoid';
+import { CONSTANTS } from "../constants";
 
 const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 20)
 
-type PinType = 'Event' | 'Person';
+type PinType = 'MonkeDAO Discord'
+| 'Monke_Talks Podcast'
+| 'Monke Country Club'
+| 'MonkeDAO Twitter'
+| 'MonkeDAO Meet-up'
+| 'Mainstream Event'
+| 'MonkeDAO Event';
 
 export type Pin = {
   id: string,
@@ -29,35 +36,17 @@ type MapEvents =
 
 
 const fetchEvents = async () => {
-  await new Promise((resolve, reject) => {
-    setTimeout(resolve, 1000);
+  const response = await fetch(`${CONSTANTS.API_URL}/events`, {
+    method: 'GET',
   });
-  return [
-    {
-      id: nanoid(),
-      name: 'Zolana CHI Happy Hour',
-      type: 'Event',
-      coordinates: [-122.392630, 47.649600],
-    },
-    {
-      id: nanoid(),
-      name: 'Test 2',
-      type: 'Event',
-      coordinates: [-122.373766, 47.648254],
-    },
-    {
-      id: nanoid(),
-      name: 'Test 3',
-      type: 'Event',
-      coordinates: [-122.402775, 47.661843],
-    },
-    {
-      id: nanoid(),
-      name: 'Thing',
-      type: 'Person',
-      coordinates: [-122.417395, 47.662108],
-    },
-  ]
+
+  const res = await response.json();
+
+  if (response.ok) {
+    return res;
+  } else {
+    return Promise.reject({ status: response.status });
+  }
 }
 
 const defaultMapContext: MapContext = Object.assign({
@@ -121,7 +110,23 @@ export const mapMachine = createMachine<MapContext, MapEvents>({
   actions: {
     setPins: assign({
       pins: (context, event) => {
-        const pins = (event as any).data;
+        const pinsData = (event as any).data;
+
+        const pins = pinsData.map((p: any) => {
+          const { end_date, start_date, location, name, type, id } = p;
+
+          const mappedLocation = typeof location === 'string' ? [0, 0] : location
+
+          return {
+            id,
+            name,
+            startDate: start_date,
+            endDate: end_date,
+            coordinates: mappedLocation,
+            type
+          }
+        })
+
         return pins;
       }
     }),
