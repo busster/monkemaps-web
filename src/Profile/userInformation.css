@@ -104,6 +104,21 @@
   margin-top: 5rem;
 }
 
+.Profile__gallery {
+  display: flex;
+}
+
+.nft_gallery {
+  height: 100px;
+  width: 100px;
+}
+
+.nft_gallery_img {
+  object-fit: contain;
+  height: 100%;
+  width: 100%;
+}
+
 @media (max-width: 769px) {
   .Profile__location {
     display: grid;

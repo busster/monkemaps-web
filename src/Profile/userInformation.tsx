@@ -136,6 +136,17 @@ export const UserInformation = (): JSX.Element => {
             </div>
           )
           }
+          {!state.matches('loading') && (
+            <div className='Profile__gallery-container'>
+              <h2 className='Profile__title'>Monkes</h2>
+              <div className='Profile__gallery'>
+                {nftArray.map(x => (
+                  <div key={x.mint} className='nft_gallery'><img className='nft_gallery_img' src={x.imageUri} onClick={()=> send('SELECT_MONK', {id: x.mint, imageUri: x.imageUri})}></img></div>
+                ))}
+              </div>
+            </div>
+          )
+          }
           {state.matches('display') && (
             <button
               className='Profile__delete button button--delete'
