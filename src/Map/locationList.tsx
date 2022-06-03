@@ -14,6 +14,8 @@ type LocationListProps = {
 export const LocationList = ({ locations, loading, activeLocation }: LocationListProps): JSX.Element => {
   const isEmpty = locations.length === 0;
 
+  console.log(locations)
+
   if (loading) {
     return (
       <div className='Map-LocationList'>
@@ -35,7 +37,7 @@ export const LocationList = ({ locations, loading, activeLocation }: LocationLis
               <Link className='Map-LocationList__item-link' to={`/map/${pin.id}`}>
                 <div className='Map-LocationList__item-container'>
                   <div className='Map-LocationList__item-header'>{ pin.name }</div>
-                  <div className='Map-LocationList__item-address'>{ pin.coordinates }</div>
+                  <div className='Map-LocationList__item-address'>{ pin.location }</div>
                 </div>
               </Link>
             </div>
