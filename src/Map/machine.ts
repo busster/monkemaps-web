@@ -17,6 +17,7 @@ export type Pin = {
   id: string,
   type: PinType,
   name: string,
+  location: string,
   coordinates: [lat: number, lng: number],
 };
 
@@ -41,6 +42,7 @@ const fetchEvents = async () => {
   });
 
   const res = await response.json();
+  console.log(res);
 
   if (response.ok) {
     return res;
@@ -123,6 +125,7 @@ export const mapMachine = createMachine<MapContext, MapEvents>({
             startDate: start_date,
             endDate: end_date,
             coordinates: mappedLocation,
+            location,
             type
           }
         })
