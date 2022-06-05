@@ -6,20 +6,38 @@ import { Link, Navigate } from 'react-router-dom';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 
 import { useMachine } from '@xstate/react';
-import { createUserMachine, latValid, lngValid } from './machine';
+import { createUserMachine } from './machine';
 
 import './userInformation.css';
 import { NftData, MetaData } from '../Models/nft';
 import axios from 'axios';
 import { chunkItems } from '../utils/promises';
+import { MDInput, MDDropdownSearch } from '../design';
+import { CONSTANTS } from '../constants';
+
+const lookupPlaces = async (searchTerm: string) => {
+  const response = await fetch(`${CONSTANTS.MAPBOX_PLACES_API}/${searchTerm}.json?access_token=${CONSTANTS.MAPBOX_ACCESS_TOKEN}`, {
+    method: 'GET',
+  });
+  
+  const res = await response.json();
+  const results = res.features.map((f: any) => ({
+    id: f.id,
+    text: f.place_name,
+    coordinates: f.geometry.coordinates.reverse()
+}))
+  if (response.ok) {
+    return results;
+  } else {
+    return Promise.reject({ status: response.status });
+  }
+}
 
 export const UserInformation = (): JSX.Element => {
   const { publicKey } = useWallet();
   const { connection } = useConnection();
   const [nftArray, setNftArray] = useState<NftData[]>([]);
   const walletId = publicKey?.toBase58();
-
-  console.log(nftArray)
 
   const [state, send] = useMachine(() =>
     createUserMachine(walletId)
@@ -61,19 +79,15 @@ export const UserInformation = (): JSX.Element => {
     }
   }, [walletId]);
 
-  const { lat, lng } = state.context;
-
-  const handleSetLat = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const parsed = parseFloat(e.target.value);
-    if (isNaN(parsed)) return;
-    send('INPUT_LAT', { lat: parsed });
-  }
-
-  const handleSetLng = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const parsed = parseFloat(e.target.value);
-    if (isNaN(parsed)) return;
-    send('INPUT_LNG', { lng: parsed });
-  }
+  const {
+    nickName,
+    twitter,
+    github,
+    telegram,
+    discord,
+    nft,
+    location,
+  } = state.context;
 
   if (state.matches('none')) {
     return <Navigate to='/map'></Navigate>
@@ -102,59 +116,89 @@ export const UserInformation = (): JSX.Element => {
                   className='Profile__save button button--save'
                   onClick={() => send('SAVE')}
                   disabled={['edit.invalid', 'create.invalid'].some(state.matches)}
-                >Save</button>
+                >{ state.matches('edit') ? 'Save' : 'Create' }</button>
               )
             }
           </div>
         </div>
-        <div className='Profile__body-container'>
-          <div className='Profile__wallet'>
-            <h2 className='Profile__title'>Wallet</h2>
-            <WalletMultiButton />
+        {!state.matches('loading') && (
+          <div className='Profile__body-container'>
+            
+            <div className='Profile__section'>
+              <h2 className='Profile__title'>Wallet</h2>
+              <WalletMultiButton />
+            </div>
+
+            <div className='Profile__section'>
+              <h2 className='Profile__title'>User Information</h2>
+              <div className='Profile__form'>
+                <MDInput
+                  label='Nick Name'
+                  defaultValue={nickName}
+                  onChange={(e) => send('INPUT_NICK_NAME', { nickName: e.target.value })}
+                />
+                <MDDropdownSearch
+                  label='Location'
+                  placeholder='Search by address...'
+                  onSearch={lookupPlaces}
+                  onSelect={(v) => send('INPUT_LOCATION', { location: v })}
+                  selectedValue={location}
+                  selectId={v => v.id}
+                  mapTextValue={(val) => val ? val.text : ''}
+                />
+                <MDInput
+                  label='Twitter'
+                  defaultValue={twitter}
+                  onChange={(e) => send('INPUT_TWITTER', { twitter: e.target.value })}
+                />
+                <MDInput
+                  label='Github'
+                  defaultValue={github}
+                  onChange={(e) => send('INPUT_GITHUB', { github: e.target.value })}
+                />
+                <MDInput
+                  label='Discord'
+                  defaultValue={discord}
+                  onChange={(e) => send('INPUT_DISCORD', { discord: e.target.value })}
+                />
+                <MDInput
+                  label='Telegram'
+                  defaultValue={telegram}
+                  onChange={(e) => send('INPUT_TELEGRAM', { telegram: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className='Profile__section'>
+              <div className='Profile__gallery-container'>
+                <h2 className='Profile__title'>Monkes</h2>
+                <div className='Profile__gallery'>
+                  {nftArray
+                    .sort((a, b) => a.mint.localeCompare(b.mint))
+                    .map(x => (
+                      <div
+                        key={x.mint}
+                        className={`nft_gallery ${x.mint === nft.id ? 'nft_gallery--selected' : ''}`}
+                      >
+                        <img
+                          className='nft_gallery_img'
+                          src={x.imageUri}
+                          onClick={()=> send('SELECT_MONK', { nft: {id: x.mint, imageUri: x.imageUri} })}
+                        ></img>
+                      </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {state.matches('display') && (
+              <button
+                className='Profile__delete button button--delete'
+                onClick={() => send('DELETE')}
+              >Delete User</button>
+            )}
           </div>
-          {!state.matches('loading') && (
-            <div className='Profile__location-container'>
-              <h2 className='Profile__title'>Location</h2>
-              <div className='Profile__location'>
-                <label className='Profile__location-coord-label' htmlFor='lat'>Lat:</label>
-                <input
-                  id="lat"
-                  className={`Profile__location-coord-input ${!latValid(lat) ? 'Profile__location-coord-input--error' : ''}`}
-                  type='number'
-                  defaultValue={lat}
-                  onChange={handleSetLat}
-                ></input>
-                <label className='Profile__location-coord-label' htmlFor='lng'>Lng:</label>
-                <input
-                  id="lng"
-                  className={`Profile__location-coord-input ${!lngValid(lng) ? 'Profile__location-coord-input--error' : ''}`}
-                  type='number'
-                  defaultValue={lng}
-                  onChange={handleSetLng}
-                ></input>
-              </div>
-            </div>
-          )
-          }
-          {!state.matches('loading') && (
-            <div className='Profile__gallery-container'>
-              <h2 className='Profile__title'>Monkes</h2>
-              <div className='Profile__gallery'>
-                {nftArray.map(x => (
-                  <div key={x.mint} className='nft_gallery'><img className='nft_gallery_img' src={x.imageUri} onClick={()=> send('SELECT_MONK', {id: x.mint, imageUri: x.imageUri})}></img></div>
-                ))}
-              </div>
-            </div>
-          )
-          }
-          {state.matches('display') && (
-            <button
-              className='Profile__delete button button--delete'
-              onClick={() => send('DELETE')}
-            >Delete User</button>
-          )
-          }
-        </div>
+        )}
       </div>
     );
   }

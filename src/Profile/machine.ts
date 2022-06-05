@@ -1,38 +1,62 @@
 import { assign, ActionObject, createMachine, TransitionsConfig, interpret, spawn, ActorRef } from "xstate";
+import { customAlphabet } from "nanoid";
+
 import { CONSTANTS } from "../constants";
 
-type UserContext = {
-  walletId: string,
-  lat: number,
-  lng: number,
-  nft: NFT,
-};
+const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 20);
 
 type NFT = {
   imageUri: string,
   id: string,
 }
+type Location = {
+  id: string;
+  text: string,
+  coordinates: [number, number],
+}
+type UserContext = {
+  walletId: string,
+  nickName: string,
+  twitter: string,
+  github: string,
+  telegram: string,
+  discord: string,
+  nft: NFT,
+  location: Location,
+};
 
-type INPUT_LAT_EVENT = { type: 'INPUT_LAT', lat: number };
-type INPUT_LNG_EVENT = { type: 'INPUT_LNG', lng: number };
+type SELECT_MONK_EVENT = { type: 'SELECT_MONK', nft: NFT };
+type INPUT_LOCATION_EVENT = { type: 'INPUT_LOCATION', location: Location };
+type INPUT_NICK_NAME_EVENT = { type: 'INPUT_NICK_NAME', nickName: string };
+type INPUT_TWITTER_EVENT = { type: 'INPUT_TWITTER', twitter: string };
+type INPUT_GITHUB_EVENT = { type: 'INPUT_GITHUB', github: string };
+type INPUT_TELEGRAM_EVENT = { type: 'INPUT_TELEGRAM', telegram: string };
+type INPUT_DISCORD_EVENT = { type: 'INPUT_DISCORD', discord: string };
 type UserEvents =
   | { type: 'SAVE' }
   | { type: 'DELETE' }
   | { type: 'RESET' }
   | { type: 'DISCONNECT' }
-  | INPUT_LAT_EVENT
-  | INPUT_LNG_EVENT
-  | SELECT_MONK_EVENT;
-
-type SELECT_MONK_EVENT = { type: 'SELECT_MONK', nft: NFT };
-
-
+  | SELECT_MONK_EVENT
+  | INPUT_LOCATION_EVENT
+  | INPUT_NICK_NAME_EVENT
+  | INPUT_TWITTER_EVENT
+  | INPUT_GITHUB_EVENT
+  | INPUT_TELEGRAM_EVENT
+  | INPUT_DISCORD_EVENT;
 
 const createUserContext = (walletId: string | undefined): UserContext => Object.assign({
   walletId,
-  lat: 0,
-  lng: 0,
-  nft: {}
+  nft: {},
+  nickName: '',
+  twitter: '',
+  github: '',
+  telegram: '',
+  discord: '',
+  location: {
+    text: '',
+    coordinates: [0,0]
+  }
 });
 
 const fetchUser = async (context: UserContext) => {
@@ -56,12 +80,18 @@ const createUser = async (context: UserContext) => {
     },
     body: JSON.stringify({
       walletId: context.walletId,
+      nickName: context.nickName,
+      twitter: context.twitter,
+      github: context.github,
+      telegram: context.telegram,
+      discord: context.discord,
       location: {
-        latitude: context.lat,
-        longitude: context.lng,
+        ...context.location,
+        latitude: context.location.coordinates[0],
+        longitude: context.location.coordinates[0],
       },
       image: context.nft.imageUri,
-      monkeIds: [context.nft.id]
+      monkeId: context.nft.id
     })
   });
 
@@ -80,12 +110,18 @@ const updateUser = async (context: UserContext) => {
     },
     body: JSON.stringify({
       walletId: context.walletId,
+      nickName: context.nickName,
+      twitter: context.twitter,
+      github: context.github,
+      telegram: context.telegram,
+      discord: context.discord,
       location: {
-        latitude: context.lat,
-        longitude: context.lng,
+        ...context.location,
+        latitude: context.location.coordinates[0],
+        longitude: context.location.coordinates[0],
       },
       image: context.nft.imageUri,
-      monkeIds: [context.nft.id]
+      monkeId: context.nft.id,
     })
   });
 
@@ -107,32 +143,6 @@ const deleteUser = async (context: UserContext) => {
     return Promise.reject({ status: response.status });
   }
 }
-
-export const latValid = (n: number) => n > -90 && n < 90;
-export const lngValid = (n: number) => n > -180 && n < 180;
-
-const creatInputLatTransition = (baseStateTarget: string) => ([
-  {
-    target: `${baseStateTarget}.valid`,
-    actions: ['setLat'],
-    cond: 'latValid',
-  },
-  {
-    target: `${baseStateTarget}.invalid`,
-    actions: ['setLat'],
-  }
-]);
-const createInputLngTransition = (baseStateTarget: string) => ([
-  {
-    target: `${baseStateTarget}.valid`,
-    actions: ['setLng'],
-    cond: 'lngValid',
-  },
-  {
-    target: `${baseStateTarget}.invalid`,
-    actions: ['setLng'],
-  }
-]);
 
 export const createUserMachine = (walletId: string | undefined) => createMachine<UserContext, UserEvents>({
   id: 'user',
@@ -166,21 +176,59 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
         invalid: {},
       },
       on: {
-        INPUT_LAT: creatInputLatTransition('create'),
-        INPUT_LNG: createInputLngTransition('create'),
         SELECT_MONK: {
           actions: ['setNft']
+        },
+        INPUT_LOCATION: {
+          actions: ['setLocation']
+        },
+        INPUT_NICK_NAME: {
+          actions: ['setNickName'],
+        },
+        INPUT_TWITTER: {
+          actions: ['setTwitter'],
+        },
+        INPUT_GITHUB: {
+          actions: ['setGithub'],
+        },
+        INPUT_DISCORD: {
+          actions: ['setDiscord'],
+        },
+        INPUT_TELEGRAM: {
+          actions: ['setTelegram'],
         }
       }
     },
     display: {
       on: {
-        INPUT_LAT: creatInputLatTransition('edit'),
-        INPUT_LNG: createInputLngTransition('edit'),
         DELETE: 'deleteUser',
         SELECT_MONK: {
           target: 'edit.valid',
           actions: ['setNft']
+        },
+        INPUT_LOCATION: {
+          target: 'edit.valid',
+          actions: ['setLocation']
+        },
+        INPUT_NICK_NAME: {
+          target: 'edit.valid',
+          actions: ['setNickName'],
+        },
+        INPUT_TWITTER: {
+          target: 'edit.valid',
+          actions: ['setTwitter'],
+        },
+        INPUT_GITHUB: {
+          target: 'edit.valid',
+          actions: ['setGithub'],
+        },
+        INPUT_DISCORD: {
+          target: 'edit.valid',
+          actions: ['setDiscord'],
+        },
+        INPUT_TELEGRAM: {
+          target: 'edit.valid',
+          actions: ['setTelegram'],
         }
       }
     },
@@ -195,10 +243,26 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
       },
       on: {
         RESET: 'loading',
-        INPUT_LAT: creatInputLatTransition('edit'),
-        INPUT_LNG: createInputLngTransition('edit'),
         SELECT_MONK: {
           actions: ['setNft']
+        },
+        INPUT_LOCATION: {
+          actions: ['setLocation']
+        },
+        INPUT_NICK_NAME: {
+          actions: ['setNickName'],
+        },
+        INPUT_TWITTER: {
+          actions: ['setTwitter'],
+        },
+        INPUT_GITHUB: {
+          actions: ['setGithub'],
+        },
+        INPUT_DISCORD: {
+          actions: ['setDiscord'],
+        },
+        INPUT_TELEGRAM: {
+          actions: ['setTelegram'],
         }
       }
     },
@@ -233,24 +297,44 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
 {
   actions: {
     setUser: assign({
-      lat: (context, event: any) => parseFloat(event.data.location.latitude),
-      lng: (context, event: any) => parseFloat(event.data.location.longitude),
-    }),
-    setLat: assign({
-      lat: (context, event) => (event as INPUT_LAT_EVENT).lat
-    }),
-    setLng: assign({
-      lng: (context, event) => (event as INPUT_LNG_EVENT).lng
+      nickName: (context, event: any) => event.data.nickName,
+      twitter: (context, event: any) => event.data.twitter,
+      github: (context, event: any) => event.data.github,
+      telegram: (context, event: any) => event.data.telegram,
+      discord: (context, event: any) => event.data.discord,
+      location: (context, event: any) => ({
+        id: nanoid(),
+        text: event.data.location.text,
+        coordinates: [parseFloat(event.data.location.latitude), parseFloat(event.data.location.longitude)]
+      }),
+      nft: (context, event: any) => ({
+        id: event.data.monkeId || '',
+        imageUri: event.data.image ?? '',
+      })
     }),
     setNft: assign({
-      nft: (context, event) => {console.log(event); return (event as SELECT_MONK_EVENT).nft}
-    })
+      nft: (context, event) => (event as SELECT_MONK_EVENT).nft
+    }),
+    setLocation: assign({
+      location: (context, event) => (event as INPUT_LOCATION_EVENT).location
+    }),
+    setNickName: assign({
+      nickName: (context, event) => (event as INPUT_NICK_NAME_EVENT).nickName
+    }),
+    setTwitter: assign({
+      twitter: (context, event) => (event as INPUT_TWITTER_EVENT).twitter
+    }),
+    setGithub: assign({
+      github: (context, event) => (event as INPUT_GITHUB_EVENT).github
+    }),
+    setTelegram: assign({
+      telegram: (context, event) => (event as INPUT_TELEGRAM_EVENT).telegram
+    }),
+    setDiscord: assign({
+      discord: (context, event) => (event as INPUT_DISCORD_EVENT).discord
+    }),
   },
   guards: {
     userNotFound: (context, event) => (event as any).data.status === 404,
-    latValid: (context, event) => latValid((event as INPUT_LAT_EVENT).lat),
-    lngValid: (context, event) => lngValid((event as INPUT_LNG_EVENT).lng)
   }
 });
-
-// export const mapService = interpret(mapMachine).start();

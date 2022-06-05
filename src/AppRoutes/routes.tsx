@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 
 import { MapWrapper, Map, LocationDetails } from '../Map';
-import { UserInformation } from '../Profile';
+import { UserInformation, ViewUserInformation } from '../Profile';
 
 export const AppRoutes = () => {
   return (
@@ -16,6 +16,7 @@ export const AppRoutes = () => {
         <Route path="" element={<Map />} />
         <Route path=":locationId" element={<LocationDetails />} />
       </Route>
+      <Route path="/monke/:monkeId" element={<ViewUserInformation />} />
     </Routes>
   );
 }
