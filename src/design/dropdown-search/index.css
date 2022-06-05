@@ -1,0 +1,91 @@
+.md-dropdown-search__container {
+  display: flex;
+  flex-direction: column;
+}
+
+.md-dropdown-search__label {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.md-dropdown-search {
+  box-sizing: border-box;
+  margin: 0;
+  font-variant: tabular-nums;
+  list-style: none;
+  font-feature-settings: "tnum";
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  min-width: 0;
+  padding: 4px 11px;
+  font-size: 14px;
+  line-height: 1.5715;
+  background-color: var(--colors_white);
+  background-image: none;
+  border: 1px solid var(--colors_light-grey);
+  border-radius: 2px;
+  transition: all .3s;
+}
+.md-dropdown-search:hover {
+  border-color: var(--colors_light-blue);
+  border-right-width: 1px;
+}
+.md-dropdown-search:focus {
+  border-color: var(--colors_light-blue);
+  border-right-width: 1px;
+  outline: 0;
+}
+
+.md-dropdown-search__results {
+  /* position: absolute; */
+  display: none;
+  background-color: var(--colors_white);
+  z-index: 1;
+  transition: all 250ms ease;
+  /* border: 1px solid var(--colors_light-grey); */
+  box-sizing: border-box;
+  border-radius: 3px;
+}
+.md-dropdown-search__results--show {
+  display: flex;
+  flex-direction: column;
+}
+
+.md-dropdown-search__results-item {
+  padding: 1rem;
+  cursor: pointer;
+  color: var(--colors_dark-green);
+  border-color: var(--colors_light-grey);
+  border-style: solid;
+  box-sizing: border-box;
+}
+.md-dropdown-search__results-item:nth-last-child(n + 2) {
+  border-bottom: 1px;
+}
+.md-dropdown-search__results-item:nth-child(1) {
+  /* border-top: 1px; */
+  border-radius: 3px 3px 0 0;
+}
+.md-dropdown-search__results-item:nth-last-child(1) {
+  border-radius: 0 0 3px 3px;
+  /* border-bottom: 1px; */
+}
+.md-dropdown-search__results-item--selected {
+  background-color: var(--colors_green) !important;
+  color: var(--colors_white);
+  border-color: var(--colors_green) !important;
+}
+.md-dropdown-search__results-item:hover {
+  background-color: var(--colors_light-green);
+  border-color: var(--colors_light-green);
+}
+.md-dropdown-search__results--none {
+  padding: 2rem;
+  border: 1px solid var(--colors_light-grey);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--colors_light-grey);
+  font-style: italic;
+}

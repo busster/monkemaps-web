@@ -1,15 +1,36 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@font-face {
+  font-family:"Space Grotesk Bold Bold";
+  src:url("https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/225848325007.woff") format("woff");
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@font-face {
+  font-family:"Space Grotesk Light";
+  src:url("https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/727795931178.woff") format("woff");
+}
+
+@font-face {
+  font-family:"Space Grotesk Medium";
+  src:url("https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/16157407014.woff") format("woff");
+}
+
+@font-face {
+  font-family:"Space Grotesk Regular";
+  src:url("https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/136610924011.woff") format("woff");
+}
+
+@font-face {
+  font-family:"Space Grotesk SemiBold";
+  src:url("https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/849944900469.woff") format("woff");
+}
+
+html {
+  font-family: 'Space Grotesk Regular';
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 :root {
@@ -32,6 +53,7 @@ code {
   --sizing_icon-height: 25px;
   --sizing_marker-height: 35px;
   --sizing_popover-offset: 30px;
+  --sizing_nft-size: 200px;
 
   --border-radius_card: 3px;
   --border-radius_button: 6px;

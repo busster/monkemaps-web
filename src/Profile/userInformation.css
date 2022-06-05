@@ -28,12 +28,17 @@
 
 .Profile__body-container {
   margin: 1rem;
+  /* display: flex; */
 }
 .Profile__title {
   /* text-align: center; */
 }
 
 .Profile__wallet {
+  margin-bottom: 2rem;
+}
+
+.Profile__section {
   margin-bottom: 2rem;
 }
 
@@ -54,37 +59,13 @@
   display: flex;
   justify-content: end;
 }
-.Profile__location-coord-input {
-  box-sizing: border-box;
-  margin: 0;
-  font-variant: tabular-nums;
-  list-style: none;
-  font-feature-settings: "tnum";
-  position: relative;
-  display: inline-block;
-  width: 100%;
-  min-width: 0;
-  padding: 4px 11px;
-  font-size: 14px;
-  line-height: 1.5715;
-  background-color: var(--colors_white);
-  background-image: none;
-  border: 1px solid var(--colors_light-grey);
-  border-radius: 2px;
-  transition: all .3s;
+
+.Profile__form {
+
 }
-.Profile__location-coord-input:hover {
-  border-color: var(--colors_light-blue);
-  border-right-width: 1px;
-}
-.Profile__location-coord-input:focus {
-  border-color: var(--colors_light-blue);
-  /* box-shadow: 0 0 0 2px var(--ant-primary-color-outline); */
-  border-right-width: 1px;
-  outline: 0;
-}
-.Profile__location-coord-input--error {
-  border-color: var(--colors_red);
+.Profile__form > * {
+  margin-bottom: 1rem;
+  max-width: 20rem;
 }
 
 .Profile__location-coord-label {
@@ -105,12 +86,26 @@
 }
 
 .Profile__gallery {
-  display: flex;
+  display: grid;
+  grid-gap: 1rem;
+  grid-template-columns: repeat(auto-fit, var(--sizing_nft-size));
 }
 
 .nft_gallery {
-  height: 100px;
-  width: 100px;
+  height: var(--sizing_nft-size);
+  width: var(--sizing_nft-size);
+  cursor: pointer;
+  opacity: .65;
+  border: 1px solid var(--colors_white);
+  box-sizing: border-box;
+  transition: all 250ms ease;
+}
+.nft_gallery--selected, .nft_gallery:hover {
+  border: 1px solid var(--colors_dark-green);
+  opacity: 1;
+}
+.nft_gallery--disabled {
+  cursor: default;
 }
 
 .nft_gallery_img {
