@@ -143,7 +143,7 @@ const useMap = () => {
       const pins = state.context.pins;
       markers.forEach(marker => marker.remove());
       setMarkers([]);
-      const newMarkers = pins.map(
+      const newMarkers = pins.filter(pin => !pin.virtual).map(
         pin => new mapboxgl.Marker(
           Marker({
             pin,
@@ -190,6 +190,8 @@ export const Map: React.FunctionComponent = (): JSX.Element => {
   const { container, visibleMarkers, state, reload, hoveredMarker } = useMap();
   const [listOpen, setListOpen] = useState(false);
 
+  const virtualLocations = state.context.pins.filter(pin => pin.virtual);
+
   return (
     <div className='Map-Wrapper'>
       <button className='Map-Wrapper__list-expander' onClick={() => setListOpen(!listOpen)}>
@@ -197,7 +199,7 @@ export const Map: React.FunctionComponent = (): JSX.Element => {
         { listOpen ? 'View Map' : 'View List'}
       </button>
       <div className={`Map-Wrapper__list ${ listOpen ? 'Map-Wrapper__list--expanded' : '' }`}>
-        <LocationList loading={state.matches('loading')} locations={visibleMarkers} activeLocation={hoveredMarker} />
+        <LocationList loading={state.matches('loading')} locations={visibleMarkers} virtualLocations={virtualLocations} activeLocation={hoveredMarker} />
       </div>
       <div className='Map-Wrapper__view'>
         <button className='Map-Wrapper__view-refresher' onClick={() => reload()}>

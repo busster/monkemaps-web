@@ -5,10 +5,10 @@ Profile Page
 -- 4. View Profile Page
 
 Maps
-1. split out virtual / real events
-2. format sidebar
-3. fill out details page
-4. format hover state
+-- 1. split out virtual / real events
+-- 2. format sidebar
+-- 3. fill out details page
+-- 4. format hover state
 
 Style
 -- 1. load font

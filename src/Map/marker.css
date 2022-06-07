@@ -17,14 +17,15 @@
 .Marker-popover {
   background-color: white;
   color: black;
-  display: flex;
+  /* display: flex; */
   padding: 1rem;
   border-radius: 3px;
-  position: absolute;
-  bottom: var(--sizing_popover-offset);
+  /* position: absolute; */
+  /* bottom: var(--sizing_popover-offset); */
   z-index: 1000;
   display: none;
   transition: all 250ms;
+  min-width: 250px;
 }
 
 .Marker-popover--visible {
@@ -34,3 +35,8 @@
 .Marker-popover > h1 {
   font-size: var(--font-size_marker-title);
 }
+
+.Map-Marker__text {
+  margin-bottom: 0.5rem;
+}
+.Map-Marker__date {}

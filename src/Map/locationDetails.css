@@ -1,3 +1,6 @@
+.Map-Location-Details__back-link {
+  text-decoration: none;
+}
 
 .Map-Location-Details__back {
   display: flex;
@@ -27,4 +30,41 @@
 }
 .Map-Location-Details__title {
   text-align: center;
+}
+.Map-Location-Details__info {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+.Map-Location-Details__info-value {
+  margin-bottom: 0.25rem;
+}
+.Map-Location-Details__info-label {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+.Map-Location-Details__info-link {
+  text-decoration: none;
+  color: var(--colors_light-green);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Map-Location-Details-link {
+  display: flex;
+  align-items: center;
+  color: var(--colors_dark-green);
+  text-decoration: none;
+}
+.Map-Location-Details-link-icon {
+  height: 15px;
+  width: 15px;
+  margin-left: .25rem;
+}
+.Map-Location-Details-link:hover {
+  color: var(--colors_green);
+}
+.Map-Location-Details-link:active {
+  color: var(--colors_dark-green);
 }
