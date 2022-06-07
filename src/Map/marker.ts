@@ -41,10 +41,23 @@ export const Marker = ({ pin, handleOnclick, handleOnmouseenter, handleOnmousele
   root.setAttribute('id', pin.id);
 
   const popover = document.createElement('div');
+
   const title = document.createElement('h1');
   title.innerText = pin.name;
+
+  const text = document.createElement('div');
+  text.className = 'Map-Marker__text';
+  text.innerText = pin.text;
+
+  const date = document.createElement('div');
+  date.className = 'Map-Marker__date';
+  date.innerText = pin.startDate.toFormat('LLL LL, yyyy, hh:mm a');
   
   popover.appendChild(title);
+
+  popover.appendChild(text);
+
+  popover.appendChild(date);
   
   popover.className = 'Marker-popover';
 

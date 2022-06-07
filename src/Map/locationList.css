@@ -1,9 +1,10 @@
 .Map-LocationList {
   /* margin: 1rem 0; */
   border-radius: var(--border-radius_card);
-  overflow-y: auto;
   height: 100%;
   background-color: var(--colors_white);
+  display: flex;
+  flex-direction: column;
 }
 .Map-LocationList__empty {
   border-radius: var(--border-radius_card);
@@ -28,12 +29,20 @@
   background-color: var(colors_white);
   -webkit-box-shadow: 2px 2px 10px 0px rgba(0,0,0,0.1); 
   box-shadow: 2px 2px 10px 0px rgba(0,0,0,0.1);
+  transition: box-shadow 250ms ease;
+}
+.Map-LocationList__item:hover {
+  -webkit-box-shadow: 2px 2px 10px 0px rgba(0,0,0,0.2); 
+  box-shadow: 2px 2px 10px 0px rgba(0,0,0,0.2);
 }
 .Map-LocationList__item--active {
   background-color: pink;
 }
 .Map-LocationList__item:nth-child(n + 1) {
   margin-top: 1.5rem;
+}
+.Map-LocationList__item:nth-last-child(1) {
+  margin-bottom: 1.5rem;
 }
 /* .Map-LocationList__item:nth-child(n - 1) {
   margin-bottom: 1rem;
@@ -47,6 +56,54 @@
   margin-bottom: 1rem;
   font-size: var(--font-size_card-title);
   font-weight: var(--font-weight_card-title);
+}
+.Map-LocationList__item-address {
+  margin-bottom: 1rem;
+}
+
+.Map-LocationList__list-title {
+  margin-left: 1.5rem;
+  font-size: var(--font-size_card-title);
+  cursor: pointer;
+}
+.Map-LocationList__list-section {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 50%;
+  flex-grow: 0;
+  overflow: auto;
+}
+.Map-LocationList__list-section--expanded {
+  flex-grow: 1;
+}
+.Map-LocationList__list {
+  overflow-y: auto;
+  height: 100%;
+}
+
+.Map-LocationList__tabs {
+  display: flex;
+  flex-direction: row;
+}
+.Map-LocationList__tab {
+  cursor: pointer;
+  padding: 1rem;
+  flex-basis: 50%;
+  justify-content: center;
+  display: flex;
+  border-bottom: 1px solid var(--colors_light-grey);
+  font-weight: 700;
+}
+.Map-LocationList__tab:hover {
+  background-color: var(--colors_light-green);
+}
+.Map-LocationList__tab:nth-child(1) {
+  border-right: 1px solid var(--colors_light-grey);
+}
+.Map-LocationList__tab--active {
+  border-bottom: 1px solid var(--colors_light-green);
+  background-color: var(--colors_green) !important;
+  color: var(--colors_white);
 }
 
 @media (max-width: 769px) {

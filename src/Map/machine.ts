@@ -1,6 +1,8 @@
 import { assign, ActionObject, createMachine, TransitionsConfig, interpret, spawn, ActorRef } from "xstate";
 
 import { customAlphabet } from 'nanoid';
+import { DateTime } from "luxon";
+
 import { CONSTANTS } from "../constants";
 
 const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 20)
@@ -19,6 +21,11 @@ export type Pin = {
   name: string,
   location: string,
   coordinates: [lat: number, lng: number],
+  text: string,
+  virtual: boolean,
+  startDate: DateTime,
+  endDate: DateTime,
+  link: string,
 };
 
 type MapContext = {
@@ -115,18 +122,36 @@ export const mapMachine = createMachine<MapContext, MapEvents>({
         const pinsData = (event as any).data;
 
         const pins = pinsData.map((p: any) => {
-          const { end_date, start_date, location, name, type, id } = p;
+          const {
+            id,
+            startDate,
+            endDate,
+            type,
+            name,
+            location,
+            virtual,
+            status,
+          } = p;
 
-          const mappedLocation = typeof location === 'string' ? [0, 0] : location
+          const {
+            coordinates,
+            hasLink,
+            text,
+            link,
+          } = location;
+
+          console.log(startDate)
 
           return {
             id,
+            startDate: DateTime.fromISO(startDate),
+            endDate: DateTime.fromISO(endDate),
+            type,
             name,
-            startDate: start_date,
-            endDate: end_date,
-            coordinates: mappedLocation,
-            location,
-            type
+            virtual,
+            coordinates: coordinates.reverse(),
+            text,
+            link
           }
         })
 
