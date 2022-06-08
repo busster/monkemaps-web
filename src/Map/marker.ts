@@ -21,13 +21,21 @@ export const Marker = ({ pin, handleOnclick, handleOnmouseenter, handleOnmousele
     case 'MonkeDAO Discord':
     case 'Monke_Talks Podcast':
     case 'Monke Country Club':
+      src = '/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-71.svg';
+      break;
     case 'MonkeDAO Twitter':
+      src = '/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-73.svg';
+      break;
     case 'MonkeDAO Meet-up':
     case 'Mainstream Event':
+      src = '/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-50.svg';
+      break;
     case 'MonkeDAO Event':
       src = '/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-53.svg';
       break;
       // src = '/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-52.svg';
+      // break;
+      // src = '/Monke_Nobg/310.png';
       // break;
   }
   icon.src = src;
