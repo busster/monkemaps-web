@@ -36,24 +36,24 @@ export const LocationDetails: React.FunctionComponent = (): JSX.Element => {
     <div className='Map-Location-Details__container'>
       <div className='Map-Location-Details__header'>
         <Link className='Map-Location-Details__back-link' to='/map'>
-          <button className='Map-Location-Details__back button' onClick={() => {}}>
+          <button className='Map-Location-Details__back button' onClick={() => { }}>
             <img className='Map-Location-Details__back-icon' src='/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-89.svg' alt='MonkeDAO Map Location Details Back Icon' />
             Back
           </button>
         </Link>
       </div>
       <div className='Map-Location-Details__body-container'>
-        <h1 className='Map-Location-Details__title'>{ location?.name }</h1>
+        <h1 className='Map-Location-Details__title'>{location?.name}</h1>
 
-        
+
         <div className='Map-Location-Details__info'>
           <div className='Map-Location-Details__info-label'>Date:</div>
-          <div className='Map-Location-Details__info-value'>{ location?.startDate.toFormat('cccc, LLLL LL, yyyy, hh:mm a') }</div>
+          <div className='Map-Location-Details__info-value'>{location?.startDate.toFormat('cccc, LLLL LL, yyyy, hh:mm a')}</div>
         </div>
 
         <div className='Map-Location-Details__info'>
           <div className='Map-Location-Details__info-label'>Location:</div>
-          <div className='Map-Location-Details__info-value'>{ location?.text }</div>
+          <div className='Map-Location-Details__info-value'>{location?.text}</div>
           {
             location?.link ?
               (<a href={location?.link} className='Map-Location-Details-link' target='_blank'>
@@ -67,6 +67,35 @@ export const LocationDetails: React.FunctionComponent = (): JSX.Element => {
               null
           }
         </div>
+        {
+          location?.extraLink ? (
+            <div className='Map-Location-Details__info'>
+              <div className='Map-Location-Details__info-label'>External Link:</div>
+              <a href={location?.link} className='Map-Location-Details-link' target='_blank'>
+                more resources
+                <img
+                  className='Map-Location-Details-link-icon'
+                  src='/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-79.svg'
+                  alt='MonkeDAO External Details Icon'
+                />
+              </a>
+            </div>
+          ) : null
+        }
+        {
+          location?.contacts ? (
+            <div className='Map-Location-Details__info'>
+              <div className='Map-Location-Details__info-label'>Contacts:</div>
+              <div className='Map-Location-Details__info-value'>
+              <img
+                  className='Map-Location-Details-link-icon'
+                  src='/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-50.svg'
+                  alt='MonkeDAO Contacts Icon'
+                />
+                {location?.contacts.join(', ')}</div>
+            </div>
+          ) : null
+        }
       </div>
     </div>
   );

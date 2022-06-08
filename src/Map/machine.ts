@@ -26,6 +26,8 @@ export type Pin = {
   startDate: DateTime,
   endDate: DateTime,
   link: string,
+  extraLink: string,
+  contacts: string[]
 };
 
 type MapContext = {
@@ -131,6 +133,8 @@ export const mapMachine = createMachine<MapContext, MapEvents>({
             location,
             virtual,
             status,
+            extraLink,
+            contacts
           } = p;
 
           const {
@@ -151,7 +155,9 @@ export const mapMachine = createMachine<MapContext, MapEvents>({
             virtual,
             coordinates: coordinates.reverse(),
             text,
-            link
+            link,
+            extraLink,
+            contacts
           }
         })
 

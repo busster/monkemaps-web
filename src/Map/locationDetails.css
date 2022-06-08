@@ -61,6 +61,8 @@
   height: 15px;
   width: 15px;
   margin-left: .25rem;
+  margin-right: .25rem;
+
 }
 .Map-Location-Details-link:hover {
   color: var(--colors_green);
