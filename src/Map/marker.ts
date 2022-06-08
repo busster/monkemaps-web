@@ -113,14 +113,16 @@ type UserMarkerProps = {
 
 export const UserMarker = ({ user, handleOnclick, handleOnmouseenter, handleOnmouseleave }: UserMarkerProps): HTMLElement => {
   const root = document.createElement('div');
-  root.className = 'Map-Marker Map-Marker--nft';
+  let rootClassname = '';
 
   const icon = document.createElement('img');
   let src = '';
   if (user.monkeNumber) {
     src = `/Monke_No_Bg/${user.monkeNumber}.png`;
+    root.className = 'Map-Marker Map-Marker--nft';
   } else {
     src = '/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-54.svg';
+    root.className = 'Map-Marker';
   }
   icon.src = src;
   icon.className = 'Map-Marker__icon';

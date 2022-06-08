@@ -5,7 +5,17 @@ import { DateTime } from "luxon";
 
 import { CONSTANTS } from "../constants";
 
-const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 20)
+const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 20);
+
+const getNewLatLng = (pin: any, i: number) => {
+  const coordinates = pin.location.coordinates;
+  const angle = Math.PI*(3.0-Math.sqrt(5.0));
+  const r = i;
+  const theta = i * angle;
+  const x = r * Math.cos(theta) * 0.01;
+  const y = r * Math.sin(theta) * 0.01;
+  return [coordinates[0] + x, coordinates[1] + y]
+}
 
 type PinType = 'MonkeDAO Discord'
 | 'Monke_Talks Podcast'
@@ -158,6 +168,15 @@ export const mapMachine = createMachine<MapContext, MapEvents>({
       pins: (context, event) => {
         const pinsData = (event as any).data.events;
 
+        const pinsMap = pinsData.reduce((acc: Map<string, any>, next: any) => {
+          const coords = next.location.coordinates;
+          const key = coords.join(',');
+          const existing = acc.get(key);
+          const value = existing ? [...existing, next] : [next];
+          acc.set(key, value);
+          return acc;
+        }, new Map<string, any>());
+
         const pins = pinsData.map((p: any) => {
           const {
             id,
@@ -179,6 +198,13 @@ export const mapMachine = createMachine<MapContext, MapEvents>({
             link,
           } = location;
 
+          let coords = coordinates;
+          const found = pinsMap.get(coordinates.join(','));
+          if (found.length > 1) {
+            const i = found.findIndex((fp: any) => p.id === fp.id);
+            coords = getNewLatLng(p, i);
+          }
+
           console.log(startDate)
 
           return {
@@ -188,7 +214,7 @@ export const mapMachine = createMachine<MapContext, MapEvents>({
             type,
             name,
             virtual,
-            coordinates: coordinates.reverse(),
+            coordinates: coords.reverse(),
             text,
             link,
             extraLink,
@@ -202,6 +228,15 @@ export const mapMachine = createMachine<MapContext, MapEvents>({
     setUsers: assign({
       users: (context, event) => {
         const pinsData = (event as any).data.users;
+
+        const pinsMap = pinsData.reduce((acc: Map<string, any>, next: any) => {
+          const coords = [next.location.latitude, next.location.longitude];
+          const key = coords.join(',');
+          const existing = acc.get(key);
+          const value = existing ? [...existing, next] : [next];
+          acc.set(key, value);
+          return acc;
+        }, new Map<string, any>());
 
         const pins = pinsData.map((p: any) => {
           const {
@@ -222,9 +257,17 @@ export const mapMachine = createMachine<MapContext, MapEvents>({
           } = location;
           console.log(location);
 
+          const coordinates = [parseFloat(latitude), parseFloat(longitude)];
+          let coords = coordinates;
+          const found = pinsMap.get(coordinates.join(','));
+          if (found.length > 1) {
+            const i = found.findIndex((fp: any) => p.id === fp.id);
+            coords = getNewLatLng(p, i);
+          }
+
           return {
             id: walletId,
-            coordinates: [parseFloat(longitude), parseFloat(latitude)],
+            coordinates: coords.reverse(),
             text,
             twitter,
             nickName,
