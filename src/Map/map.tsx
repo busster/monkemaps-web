@@ -12,7 +12,7 @@ import { mapService, Pin } from './machine';
 
 import './map.css'
 
-import { Marker } from './marker';
+import { Marker, UserMarker } from './marker';
 import { LocationList } from './locationList';
 import { send } from 'xstate/lib/actionTypes';
 
@@ -20,6 +20,10 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiamFzb25idXNzIiwiYSI6ImNsMnhxcWM3bzB5Y28zYnBmZ
 
 const createMarkerClickHandler = (navigate: any, pin: any) => () => {
   navigate(`/map/${pin.id}`);
+}
+
+const createUserMarkerClickHandler = (navigate: any, user: any) => () => {
+  navigate(`/monke/${user.id}`);
 }
 
 function intersectRect(r1: any, r2: any) {
@@ -140,10 +144,10 @@ const useMap = () => {
         'display.map'
       ] as const).every((substate) => state.matches(substate))
     ) {
-      const pins = state.context.pins;
       markers.forEach(marker => marker.remove());
       setMarkers([]);
-      const newMarkers = pins.filter(pin => !pin.virtual).map(
+      const pins = state.context.pins;
+      const newPinMarkers = pins.filter(pin => !pin.virtual).map(
         pin => new mapboxgl.Marker(
           Marker({
             pin,
@@ -156,8 +160,22 @@ const useMap = () => {
           })
         ).setLngLat(pin.coordinates)
       )
-      newMarkers.forEach(marker => marker.addTo(map.current as mapboxgl.Map))
-      setMarkers(newMarkers);
+      newPinMarkers.forEach(marker => marker.addTo(map.current as mapboxgl.Map));
+
+      const users = state.context.users;
+      const newUserMarkers = users.map(
+        user => new mapboxgl.Marker(
+          UserMarker({
+            user,
+            handleOnclick: createUserMarkerClickHandler(navigate, user),
+            handleOnmouseenter: () => {},
+            handleOnmouseleave: () => {},
+          })
+        ).setLngLat(user.coordinates)
+      );
+      newUserMarkers.forEach(marker => marker.addTo(map.current as mapboxgl.Map));
+
+      setMarkers([...newPinMarkers, ...newUserMarkers]);
 
       const visibleMarkers = getVisibleMarkers(map.current);
       setVisibleMarkers(state.context.pins.filter(pin => visibleMarkers.includes(pin.id)));

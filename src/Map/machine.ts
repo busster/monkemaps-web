@@ -29,8 +29,21 @@ export type Pin = {
   extraLink: string,
   contacts: string[]
 };
+export type User = {
+  id: string,
+  location: string,
+  coordinates: [lat: number, lng: number],
+  monkeNumber: string,
+  nickName: string,
+  twitter: string,
+  github: string,
+  telegram: string,
+  discord: string,
+  text: string,
+};
 
 type MapContext = {
+  users: User[],
   pins: Pin[],
   visiblePins: Pin[],
 };
@@ -60,6 +73,28 @@ const fetchEvents = async () => {
   }
 }
 
+const fetchUsers = async () => {
+  const response = await fetch(`${CONSTANTS.API_URL}/users`, {
+    method: 'GET',
+  });
+
+  const res = await response.json();
+  console.log(res);
+
+  if (response.ok) {
+    return res;
+  } else {
+    return Promise.reject({ status: response.status });
+  }
+}
+
+const fetchAll = async () => {
+  const events = await fetchEvents();
+  const users = await fetchUsers();
+
+  return { events, users }
+}
+
 const defaultMapContext: MapContext = Object.assign({
   pins: [],
 });
@@ -77,10 +112,10 @@ export const mapMachine = createMachine<MapContext, MapEvents>({
       states: {
         loading: {
           invoke: {
-            src: (context, event) => fetchEvents(),
+            src: (context, event) => fetchAll(),
             onDone: {
               target: 'loaded',
-              actions: ['setPins']
+              actions: ['setPins', 'setUsers']
             },
             onError: 'error'
           }
@@ -121,7 +156,7 @@ export const mapMachine = createMachine<MapContext, MapEvents>({
   actions: {
     setPins: assign({
       pins: (context, event) => {
-        const pinsData = (event as any).data;
+        const pinsData = (event as any).data.events;
 
         const pins = pinsData.map((p: any) => {
           const {
@@ -158,6 +193,45 @@ export const mapMachine = createMachine<MapContext, MapEvents>({
             link,
             extraLink,
             contacts
+          }
+        })
+
+        return pins;
+      }
+    }),
+    setUsers: assign({
+      users: (context, event) => {
+        const pinsData = (event as any).data.users;
+
+        const pins = pinsData.map((p: any) => {
+          const {
+            walletId,
+            twitter,
+            nickName,
+            github,
+            telegram,
+            discord,
+            monkeNumber,
+            location
+          } = p;
+
+          const {
+            latitude,
+            longitude,
+            text,
+          } = location;
+          console.log(location);
+
+          return {
+            id: walletId,
+            coordinates: [parseFloat(longitude), parseFloat(latitude)],
+            text,
+            twitter,
+            nickName,
+            github,
+            telegram,
+            discord,
+            monkeNumber,
           }
         })
 

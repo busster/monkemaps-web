@@ -1,7 +1,7 @@
 import { createPopper } from '@popperjs/core';
 import { debounce } from 'lodash';
 
-import { Pin } from './machine';
+import { Pin, User } from './machine';
 import './marker.css';
 
 type MarkerProps = {
@@ -66,6 +66,84 @@ export const Marker = ({ pin, handleOnclick, handleOnmouseenter, handleOnmousele
   popover.appendChild(text);
 
   popover.appendChild(date);
+  
+  popover.className = 'Marker-popover';
+
+  root.appendChild(popover);
+
+  createPopper(root, popover, {
+    placement: 'top-start',
+    modifiers: [
+      {
+        name: 'offset',
+        options: {
+          offset: [0, 10],
+        },
+      },
+    ],
+  });
+
+  let hideTimeout: NodeJS.Timeout;
+  const show = () => {
+    clearTimeout(hideTimeout);
+    handleOnmouseenter();
+    root.classList.add('Map-Marker--visible');
+    popover.classList.add('Marker-popover--visible');
+  };
+  const hide = () => {
+    hideTimeout = setTimeout(() => {
+      handleOnmouseleave();
+      root.classList.remove('Map-Marker--visible');
+      popover.classList.remove('Marker-popover--visible');
+    }, 250)
+  };
+
+  root.onmouseenter = show;
+  root.onmouseleave = hide;
+
+  return root;
+}
+
+type UserMarkerProps = {
+  user: User;
+  handleOnclick: () => void;
+  handleOnmouseenter: () => void;
+  handleOnmouseleave: () => void;
+}
+
+export const UserMarker = ({ user, handleOnclick, handleOnmouseenter, handleOnmouseleave }: UserMarkerProps): HTMLElement => {
+  const root = document.createElement('div');
+  root.className = 'Map-Marker Map-Marker--nft';
+
+  const icon = document.createElement('img');
+  let src = '';
+  if (user.monkeNumber) {
+    src = `/Monke_No_Bg/${user.monkeNumber}.png`;
+  } else {
+    src = '/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-54.svg';
+  }
+  icon.src = src;
+  icon.className = 'Map-Marker__icon';
+  icon.alt = 'map marker';
+
+  root.appendChild(icon);
+
+  root.onclick = handleOnclick;
+
+  root.setAttribute('id', user.id);
+
+  const popover = document.createElement('div');
+
+  const title = document.createElement('h1');
+  title.innerText = user.nickName;
+
+  const text = document.createElement('div');
+  text.className = 'Map-Marker__text';
+  text.innerText = user.text;
+  
+  popover.appendChild(title);
+
+  popover.appendChild(text);
   
   popover.className = 'Marker-popover';
 

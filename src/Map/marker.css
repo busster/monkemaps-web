@@ -4,6 +4,13 @@
   z-index: 1;
   cursor: pointer;
 }
+.mapboxgl-marker.Map-Marker--nft {
+  width: var(--sizing_marker-nft-height);
+  height: var(--sizing_marker-nft-height);
+  z-index: 1;
+  cursor: pointer;
+}
+
 .Map-Marker--visible {
   z-index: 2;
 }
