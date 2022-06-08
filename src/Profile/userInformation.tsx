@@ -14,6 +14,7 @@ import axios from 'axios';
 import { chunkItems } from '../utils/promises';
 import { MDInput, MDDropdownSearch } from '../design';
 import { CONSTANTS } from '../constants';
+import bs58 from 'bs58';
 
 const lookupPlaces = async (searchTerm: string) => {
   const response = await fetch(`${CONSTANTS.MAPBOX_PLACES_API}/${searchTerm}.json?access_token=${CONSTANTS.MAPBOX_ACCESS_TOKEN}`, {
@@ -33,8 +34,30 @@ const lookupPlaces = async (searchTerm: string) => {
   }
 }
 
+// const verify = async() => {
+//   const { publicKey, signMessage } = useWallet();
+//   try {
+//     const message = `Sign this message for authenticating with your wallet. Nonce: ${publicKey?.toBase58()}`;
+//     const encodedMessage = new TextEncoder().encode(message);
+//     if (!publicKey) throw new Error("Wallet not connected!");
+//     // `signMessage` will be undefined if the wallet doesn't support it
+//     if (!signMessage)
+//       throw new Error("Wallet does not support message signing!");
+//     const signedMessage = await signMessage(encodedMessage);
+//     const sigString = bs58.encode(signedMessage);
+//     send('SIG_REQ', {verification: { message, signedMessage: sigString }});
+
+    
+//   }
+//   catch(err){
+
+//   }
+// }
+
+
+
 export const UserInformation = (): JSX.Element => {
-  const { publicKey } = useWallet();
+  const { publicKey, signMessage } = useWallet();
   const { connection } = useConnection();
   const [nftArray, setNftArray] = useState<NftData[]>([]);
   const walletId = publicKey?.toBase58();

@@ -15,6 +15,12 @@ type Location = {
   text: string,
   coordinates: [number, number],
 }
+
+type Signature = {
+  message?: string,
+  signedMessage?: string,
+}
+
 type UserContext = {
   walletId: string,
   nickName: string,
@@ -24,9 +30,11 @@ type UserContext = {
   discord: string,
   nft: NFT,
   location: Location,
+  verification?: Signature
 };
 
 type SELECT_MONK_EVENT = { type: 'SELECT_MONK', nft: NFT };
+type SIG_REQ = { type: 'SIG_REQ', verification: Signature };
 type INPUT_LOCATION_EVENT = { type: 'INPUT_LOCATION', location: Location };
 type INPUT_NICK_NAME_EVENT = { type: 'INPUT_NICK_NAME', nickName: string };
 type INPUT_TWITTER_EVENT = { type: 'INPUT_TWITTER', twitter: string };
@@ -44,7 +52,8 @@ type UserEvents =
   | INPUT_TWITTER_EVENT
   | INPUT_GITHUB_EVENT
   | INPUT_TELEGRAM_EVENT
-  | INPUT_DISCORD_EVENT;
+  | INPUT_DISCORD_EVENT
+  | SIG_REQ;
 
 const createUserContext = (walletId: string | undefined): UserContext => Object.assign({
   walletId,
@@ -57,7 +66,8 @@ const createUserContext = (walletId: string | undefined): UserContext => Object.
   location: {
     text: '',
     coordinates: [0,0]
-  }
+  },
+  //verification: undefined
 });
 
 const fetchUser = async (context: UserContext) => {
@@ -200,6 +210,9 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
         },
         INPUT_TELEGRAM: {
           actions: ['setTelegram'],
+        },
+        SIG_REQ: {
+          actions: ['setSignature'],
         }
       }
     },
@@ -315,7 +328,8 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
         id: event.data.monkeId || '',
         imageUri: event.data.image ?? '',
         monkeNo: event.data.monkeNo ?? ''
-      })
+      }),
+      //verification: (context, event: any) => (undefined)
     }),
     setNft: assign({
       nft: (context, event) => (event as SELECT_MONK_EVENT).nft
@@ -338,6 +352,9 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
     setDiscord: assign({
       discord: (context, event) => (event as INPUT_DISCORD_EVENT).discord
     }),
+    // setSignature: assign({
+    //   verification: (context, event) => (event as SIG_REQ).verification
+    // }),
   },
   guards: {
     userNotFound: (context, event) => (event as any).data.status === 404,
