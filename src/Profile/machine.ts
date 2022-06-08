@@ -121,7 +121,7 @@ const updateUser = async (context: UserContext) => {
       location: {
         ...context.location,
         latitude: context.location.coordinates[0],
-        longitude: context.location.coordinates[0],
+        longitude: context.location.coordinates[1],
       },
       image: context.nft.imageUri,
       monkeId: context.nft.id,
