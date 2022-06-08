@@ -15,6 +15,7 @@ export type NftData = {
     masterEdition?: string;
     edition?: string;
     imageUri?: string;
+    nftNumber?: string
 }
 
 export enum MetadataKey {

@@ -8,6 +8,7 @@ const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLM
 type NFT = {
   imageUri: string,
   id: string,
+  monkeNo: string,
 }
 type Location = {
   id: string;
@@ -91,7 +92,8 @@ const createUser = async (context: UserContext) => {
         longitude: context.location.coordinates[0],
       },
       image: context.nft.imageUri,
-      monkeId: context.nft.id
+      monkeId: context.nft.id,
+      monkeNumber: context.nft.monkeNo
     })
   });
 
@@ -103,6 +105,7 @@ const createUser = async (context: UserContext) => {
 }
 
 const updateUser = async (context: UserContext) => {
+  console.log('MONKE NO', context.nft.monkeNo);
   const response = await fetch(`${CONSTANTS.API_URL}/users/${context.walletId}`, {
     method: 'PUT',
     headers: {
@@ -122,6 +125,7 @@ const updateUser = async (context: UserContext) => {
       },
       image: context.nft.imageUri,
       monkeId: context.nft.id,
+      monkeNumber: context.nft.monkeNo
     })
   });
 
@@ -310,6 +314,7 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
       nft: (context, event: any) => ({
         id: event.data.monkeId || '',
         imageUri: event.data.image ?? '',
+        monkeNo: event.data.monkeNo ?? ''
       })
     }),
     setNft: assign({

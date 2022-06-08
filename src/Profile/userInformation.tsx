@@ -62,6 +62,8 @@ export const UserInformation = (): JSX.Element => {
             chunk.map(async (item, index) => {
               const result = await axios.get<MetaData>(item.data.uri);
               item.imageUri = result.data.image;
+              const titleArray = result?.data?.name?.split('#');
+              item.nftNumber = titleArray ? `${titleArray[1]}` : '';
             }));
         }
       }
@@ -183,7 +185,7 @@ export const UserInformation = (): JSX.Element => {
                         <img
                           className='nft_gallery_img'
                           src={x.imageUri}
-                          onClick={()=> send('SELECT_MONK', { nft: {id: x.mint, imageUri: x.imageUri} })}
+                          onClick={()=> send('SELECT_MONK', { nft: {id: x.mint, imageUri: x.imageUri, monkeNo: x.nftNumber } })}
                         ></img>
                       </div>
                   ))}
