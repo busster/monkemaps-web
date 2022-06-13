@@ -183,3 +183,36 @@ export const UserMarker = ({ user, handleOnclick, handleOnmouseenter, handleOnmo
 
   return root;
 }
+
+type ClusterMarkerProps = {
+  cluster: {
+    point_count: number,
+    point_count_abbreviated: number,
+  },
+  handleOnclick: () => void;
+}
+
+export const ClusterMarker = ({ cluster, handleOnclick }: ClusterMarkerProps): HTMLElement => {
+  const root = document.createElement('div');
+  
+  const classnames = [
+    'Map-Marker__cluster',
+  ];
+
+  if (cluster.point_count < 100) {
+    classnames.push('Map-Marker__cluster--small');
+  } else if (cluster.point_count >= 100 && cluster.point_count < 750) {
+    classnames.push('Map-Marker__cluster--medium');
+  } else {
+    classnames.push('Map-Marker__cluster--large');
+  }
+  
+  let rootClassname = classnames.join(' ');
+
+  root.onclick = handleOnclick;
+
+  root.className = rootClassname;
+  root.innerText = `${cluster.point_count_abbreviated}`;
+
+  return root;
+}

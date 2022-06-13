@@ -1,17 +1,37 @@
-import { assign, ActionObject, createMachine, TransitionsConfig, interpret, spawn, ActorRef } from "xstate";
+import { assign, ActionObject, createMachine, TransitionsConfig, interpret, spawn, ActorRef, Interpreter, ResolveTypegenMeta, TypegenDisabled, BaseActionObject, ServiceMap } from "xstate";
 import { customAlphabet } from "nanoid";
 
 import { CONSTANTS } from "../constants";
+import { mapService } from "../Map/machine";
 
 const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 20);
 
+export const lookupPlaces = async (searchTerm: string) => {
+  const response = await fetch(`${CONSTANTS.MAPBOX_PLACES_API}/${searchTerm}.json?access_token=${CONSTANTS.MAPBOX_ACCESS_TOKEN}`, {
+    method: 'GET',
+  });
+  
+  const res = await response.json();
+  const results = res.features.map((f: any) => ({
+    id: f.id,
+    text: f.place_name,
+    coordinates: f.geometry.coordinates.reverse()
+}))
+  if (response.ok) {
+    return results;
+  } else {
+    return Promise.reject({ status: response.status });
+  }
+}
+
 type NFT = {
-  imageUri: string,
+  imageUri: string | undefined,
   id: string,
-  monkeNo: string,
+  monkeNo: string | undefined,
 }
 type Location = {
-  id: string;
+  id: string,
+  enabled: boolean,
   text: string,
   coordinates: [number, number],
 }
@@ -26,6 +46,7 @@ type UserContext = {
   location: Location,
 };
 
+type CONNECT_EVENT = { type: 'CONNECT', walletId: string };
 type SELECT_MONK_EVENT = { type: 'SELECT_MONK', nft: NFT };
 type INPUT_LOCATION_EVENT = { type: 'INPUT_LOCATION', location: Location };
 type INPUT_NICK_NAME_EVENT = { type: 'INPUT_NICK_NAME', nickName: string };
@@ -33,18 +54,21 @@ type INPUT_TWITTER_EVENT = { type: 'INPUT_TWITTER', twitter: string };
 type INPUT_GITHUB_EVENT = { type: 'INPUT_GITHUB', github: string };
 type INPUT_TELEGRAM_EVENT = { type: 'INPUT_TELEGRAM', telegram: string };
 type INPUT_DISCORD_EVENT = { type: 'INPUT_DISCORD', discord: string };
+type ENABLE_LOCATION_EVENT = { type: 'INPUT_LOCATION_ENABLED', enabled: boolean, targetState: string };
 type UserEvents =
   | { type: 'SAVE' }
   | { type: 'DELETE' }
   | { type: 'RESET' }
   | { type: 'DISCONNECT' }
+  | CONNECT_EVENT
   | SELECT_MONK_EVENT
   | INPUT_LOCATION_EVENT
   | INPUT_NICK_NAME_EVENT
   | INPUT_TWITTER_EVENT
   | INPUT_GITHUB_EVENT
   | INPUT_TELEGRAM_EVENT
-  | INPUT_DISCORD_EVENT;
+  | INPUT_DISCORD_EVENT
+  | ENABLE_LOCATION_EVENT;
 
 const createUserContext = (walletId: string | undefined): UserContext => Object.assign({
   walletId,
@@ -55,6 +79,7 @@ const createUserContext = (walletId: string | undefined): UserContext => Object.
   telegram: '',
   discord: '',
   location: {
+    enabled: false,
     text: '',
     coordinates: [0,0]
   }
@@ -71,6 +96,30 @@ const fetchUser = async (context: UserContext) => {
   } else {
     return Promise.reject({ status: response.status });
   }
+}
+
+const findLocation = (event: ENABLE_LOCATION_EVENT): Promise<{ location: Location, targetState: string }> => {
+  return new Promise((resolve, reject) => {
+    const success = (position: any) => {
+      const { latitude, longitude } = position.coords
+      
+      lookupPlaces(`${longitude},${latitude}`).then((places: any) => {
+        if (!places || places.length === 0) {
+          reject();
+        }
+        const place = places[0];
+        resolve({
+          location: {
+            ...place,
+            enabled: true,
+            coordinates: [latitude, longitude]
+          },
+          targetState: event.targetState
+        })
+      }).catch(reject);
+    }
+    navigator.geolocation.getCurrentPosition(success, reject);
+  })
 }
 
 const createUser = async (context: UserContext) => {
@@ -105,7 +154,6 @@ const createUser = async (context: UserContext) => {
 }
 
 const updateUser = async (context: UserContext) => {
-  console.log('MONKE NO', context.nft.monkeNo);
   const response = await fetch(`${CONSTANTS.API_URL}/users/${context.walletId}`, {
     method: 'PUT',
     headers: {
@@ -156,7 +204,14 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
   initial: walletId ? 'loading' : 'none',
 
   states: {
-    none: {},
+    none: {
+      on: {
+        CONNECT: {
+          target: 'loading',
+          actions: ['setWalletId']
+        }
+      }
+    },
     loading: {
       invoke: {
         src: (context, event) => fetchUser(context),
@@ -168,6 +223,41 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
           { target: 'create.valid', cond: 'userNotFound' },
           { target: 'error' }
         ]
+      }
+    },
+    findLocation: {
+      invoke: {
+        src: (context, event) => findLocation(event as ENABLE_LOCATION_EVENT),
+        onDone: [
+          {
+            target: 'edit.valid',
+            actions: ['setFoundLocation'],
+            cond: (context, event) => event.data.targetState.includes('display')
+          },
+          {
+            target: 'create.valid',
+            actions: ['setFoundLocation'],
+            cond: (context, event) => event.data.targetState.includes('create') && event.data.targetState.includes('valid')
+          },
+          {
+            target: 'create.invalid',
+            actions: ['setFoundLocation'],
+            cond: (context, event) => event.data.targetState.includes('create') && event.data.targetState.includes('invalid')
+          },
+          {
+            target: 'edit.valid',
+            actions: ['setFoundLocation'],
+            cond: (context, event) => event.data.targetState.includes('edit') && event.data.targetState.includes('valid')
+          },
+          {
+            target: 'edit.invalid',
+            actions: ['setFoundLocation'],
+            cond: (context, event) => event.data.targetState.includes('edit') && event.data.targetState.includes('invalid')
+          }
+        ],
+        onError: {
+          target: 'loading'
+        }
       }
     },
     create: {
@@ -200,7 +290,17 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
         },
         INPUT_TELEGRAM: {
           actions: ['setTelegram'],
-        }
+        },
+        INPUT_LOCATION_ENABLED: [
+          {
+            target: 'findLocation',
+            actions: ['setLocationEnabled'],
+            cond: 'geolocationEnabled'
+          },
+          {
+            actions: ['setLocationEnabled']
+          }
+        ],
       }
     },
     display: {
@@ -233,7 +333,18 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
         INPUT_TELEGRAM: {
           target: 'edit.valid',
           actions: ['setTelegram'],
-        }
+        },
+        INPUT_LOCATION_ENABLED: [
+          {
+            target: 'findLocation',
+            actions: ['setLocationEnabled'],
+            cond: 'geolocationEnabled'
+          },
+          {
+            target: 'edit.valid',
+            actions: ['setLocationEnabled']
+          }
+        ],
       }
     },
     edit: {
@@ -267,7 +378,17 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
         },
         INPUT_TELEGRAM: {
           actions: ['setTelegram'],
-        }
+        },
+        INPUT_LOCATION_ENABLED: [
+          {
+            target: 'findLocation',
+            actions: ['setLocationEnabled'],
+            cond: 'geolocationEnabled'
+          },
+          {
+            actions: ['setLocationEnabled']
+          }
+        ],
       }
     },
     error: {},
@@ -275,14 +396,20 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
     createUser: {
       invoke: {
         src: (context, event) => createUser(context),
-        onDone: 'display',
+        onDone: {
+          target: 'display',
+          actions: ['reloadMap']
+        },
         onError: 'create.valid'
       }
     },
     updateUser: {
       invoke: {
         src: (context, event) => updateUser(context),
-        onDone: 'display',
+        onDone: {
+          target: 'display',
+          actions: ['reloadMap']
+        },
         onError: 'edit.valid'
       }
     },
@@ -300,6 +427,9 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
 },
 {
   actions: {
+    setWalletId: assign({
+      walletId: (context, event) => (event as CONNECT_EVENT).walletId
+    }),
     setUser: assign({
       nickName: (context, event: any) => event.data.nickName,
       twitter: (context, event: any) => event.data.twitter,
@@ -308,6 +438,7 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
       discord: (context, event: any) => event.data.discord,
       location: (context, event: any) => ({
         id: nanoid(),
+        enabled: event.data.location.text ? true : false,
         text: event.data.location.text,
         coordinates: [parseFloat(event.data.location.latitude), parseFloat(event.data.location.longitude)]
       }),
@@ -321,7 +452,10 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
       nft: (context, event) => (event as SELECT_MONK_EVENT).nft
     }),
     setLocation: assign({
-      location: (context, event) => (event as INPUT_LOCATION_EVENT).location
+      location: (context, event) => ({
+        ...context.location,
+        ...(event as INPUT_LOCATION_EVENT).location
+      })
     }),
     setNickName: assign({
       nickName: (context, event) => (event as INPUT_NICK_NAME_EVENT).nickName
@@ -338,8 +472,49 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
     setDiscord: assign({
       discord: (context, event) => (event as INPUT_DISCORD_EVENT).discord
     }),
+    setLocationEnabled: assign({
+      location: (context, event) => {
+        const enabled = (event as ENABLE_LOCATION_EVENT).enabled;
+        const location = enabled ?
+          context.location :
+          {
+            id: '',
+            enabled: false,
+            text: '',
+            coordinates: [0,0]
+          } as Location;
+
+        return {
+          ...location,
+          enabled: (event as ENABLE_LOCATION_EVENT).enabled
+        }
+      }
+    }),
+    setFoundLocation: assign({
+      location: (context, event: any) => event.data.location
+    }),
+    reloadMap: (context, event) => {
+      mapService.send('RELOAD');
+    }
   },
   guards: {
     userNotFound: (context, event) => (event as any).data.status === 404,
+    geolocationEnabled: (context, event) => (event as ENABLE_LOCATION_EVENT).enabled && !!navigator.geolocation
   }
 });
+
+export const UserMachine = (() => {
+  let service: Interpreter<UserContext, any, UserEvents, {
+    value: any;
+    context: UserContext;
+}, ResolveTypegenMeta<TypegenDisabled, UserEvents, BaseActionObject, ServiceMap>>;
+
+  return {
+    get: (walletId: string | undefined) => {
+      if (!service) {
+        service = interpret(createUserMachine(walletId)).start();
+      }
+      return service;
+    }
+  }
+})()

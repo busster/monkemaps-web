@@ -59,6 +59,17 @@
   display: flex;
   justify-content: end;
 }
+.Profile__location-info {
+  margin: 1rem 0;
+}
+
+.Profile__location-switch {
+  display: flex;
+}
+.Profile__location-switch-label {
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
 
 .Profile__form {
 
@@ -89,6 +100,10 @@
   display: grid;
   grid-gap: 1rem;
   grid-template-columns: repeat(auto-fit, var(--sizing_nft-size));
+}
+.Profile__gallery-none {
+  font-style: italic;
+  color: var(--colors_light-blue);
 }
 
 .nft_gallery {

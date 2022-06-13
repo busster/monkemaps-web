@@ -22,6 +22,7 @@ type SearchContext = {
 type SearchEvents =
   | { type: 'SEARCH', searchTerm: string }
   | { type: 'SELECT', value: any }
+  | { type: 'RESELECT', value: any }
   | { type: 'ESCAPE' }
   | { type: 'FOCUS' };
 const createDropdownSearchMachine = (props: SearchContext) => createMachine<SearchContext, SearchEvents>({
@@ -88,6 +89,9 @@ const createDropdownSearchMachine = (props: SearchContext) => createMachine<Sear
   },
   on: {
     ESCAPE: 'idle',
+    RESELECT: {
+      actions: ['setSelectedResult']
+    }
   }
 },
 {
@@ -120,6 +124,7 @@ type MDDropdownSearchProps = {
   onSelect: (value: any) => void;
   results?: any[];
   readonly?: boolean,
+  disabled?: boolean,
 }
 
 export const MDDropdownSearch = (props: MDDropdownSearchProps) => {
@@ -137,6 +142,7 @@ export const MDDropdownSearch = (props: MDDropdownSearchProps) => {
     onSelect,
     results,
     readonly,
+    disabled,
   } = props;
 
   const getId = (result: any) => (selectId && result) ? selectId(result) : nanoid();
@@ -155,6 +161,10 @@ export const MDDropdownSearch = (props: MDDropdownSearchProps) => {
       results: results || []
     })
   );
+  useEffect(() => {
+    // Used to trigger a clear if selectedValue is set from outside the component
+    send({ type: 'RESELECT', value: selectedValue })
+  }, [mapTextValue(selectedValue)])
 
   useClickOutside(rootRef, () => send('ESCAPE'));
 
@@ -211,7 +221,7 @@ export const MDDropdownSearch = (props: MDDropdownSearchProps) => {
             className='md-dropdown-search'
             defaultValue={mapTextValue(state.context.value)}
             onClick={() => send('FOCUS')}
-            disabled={readonly}
+            disabled={readonly || disabled}
           ></input>) :
           (<input
             id={inputId}
@@ -221,7 +231,7 @@ export const MDDropdownSearch = (props: MDDropdownSearchProps) => {
             defaultValue={mapTextValue(state.context.value)}
             onChange={handleSearch}
             autoFocus={true}
-            disabled={readonly}
+            disabled={readonly || disabled}
           ></input>)
       }
       <div

@@ -5,33 +5,15 @@ import { Link, Navigate } from 'react-router-dom';
 
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 
-import { useMachine } from '@xstate/react';
-import { createUserMachine } from './machine';
+import { useActor } from '@xstate/react';
+import { lookupPlaces, UserMachine } from './machine';
 
 import './userInformation.css';
 import { NftData, MetaData } from '../Models/nft';
 import axios from 'axios';
 import { chunkItems } from '../utils/promises';
-import { MDInput, MDDropdownSearch } from '../design';
+import { MDInput, MDDropdownSearch, MDSwitch } from '../design';
 import { CONSTANTS } from '../constants';
-
-const lookupPlaces = async (searchTerm: string) => {
-  const response = await fetch(`${CONSTANTS.MAPBOX_PLACES_API}/${searchTerm}.json?access_token=${CONSTANTS.MAPBOX_ACCESS_TOKEN}`, {
-    method: 'GET',
-  });
-  
-  const res = await response.json();
-  const results = res.features.map((f: any) => ({
-    id: f.id,
-    text: f.place_name,
-    coordinates: f.geometry.coordinates.reverse()
-}))
-  if (response.ok) {
-    return results;
-  } else {
-    return Promise.reject({ status: response.status });
-  }
-}
 
 export const UserInformation = (): JSX.Element => {
   const { publicKey } = useWallet();
@@ -39,9 +21,7 @@ export const UserInformation = (): JSX.Element => {
   const [nftArray, setNftArray] = useState<NftData[]>([]);
   const walletId = publicKey?.toBase58();
 
-  const [state, send] = useMachine(() =>
-    createUserMachine(walletId)
-  );
+  const [state, send] = useActor(UserMachine.get(walletId));
   useEffect(() => {
     let active = true
     load()
@@ -91,6 +71,8 @@ export const UserInformation = (): JSX.Element => {
     location,
   } = state.context;
 
+  console.log(state);
+
   if (state.matches('none')) {
     return <Navigate to='/map'></Navigate>
   } else {
@@ -132,41 +114,90 @@ export const UserInformation = (): JSX.Element => {
             </div>
 
             <div className='Profile__section'>
+              <h2 className='Profile__title'>User Location</h2>
+              <div className='Profile__location-switch'>
+                <MDSwitch
+                  checked={location.enabled}
+                  setChecked={(checked) => {
+                    if (!state.matches('findLocation')) {
+                      send({ type: 'INPUT_LOCATION_ENABLED', enabled: checked, targetState: JSON.stringify(state.value) })
+                    }
+                  }}
+                />
+                {
+                  state.matches('findLocation') ?
+                    (
+                      <div className='Profile__location-switch-label ellipsis'>
+                        Finding location
+                      </div>
+                    ) :
+                    (
+                      <div
+                        className='Profile__location-switch-label'
+                        onClick={() => send({ type: 'INPUT_LOCATION_ENABLED', enabled: !location.enabled, targetState: JSON.stringify(state.value) })}
+                      >{ location.enabled ? 'Location Enabled' : 'Location Disabled' }</div>
+                    )
+                }
+              </div>
+              <div className='Profile__location-info'>
+                Your location will be used to show a pin on the map with your Monke and user information. 
+                This will let you and other Monkes' see who is in the area!
+              </div>
+              {
+                location.enabled &&
+                (
+                  <div className='Profile__location-info'>
+                    By default your location is set to your device's location. 
+                    You can override this by searching for a different location below.
+                  </div>
+                )
+              }
+              {
+                location.enabled &&
+                (
+                  <div className='Profile__form'>
+                    <MDDropdownSearch
+                      disabled={!location.enabled}
+                      label='Location'
+                      placeholder='Search by address...'
+                      onSearch={lookupPlaces}
+                      onSelect={(v) => send({ type: 'INPUT_LOCATION', location: v })}
+                      selectedValue={location}
+                      selectId={v => v.id}
+                      mapTextValue={(val) => val ? val.text : ''}
+                    />
+                  </div>
+                )
+              }
+            </div>
+            
+            <div className='Profile__section'>
               <h2 className='Profile__title'>User Information</h2>
               <div className='Profile__form'>
                 <MDInput
                   label='Nick Name'
                   defaultValue={nickName}
-                  onChange={(e) => send('INPUT_NICK_NAME', { nickName: e.target.value })}
-                />
-                <MDDropdownSearch
-                  label='Location'
-                  placeholder='Search by address...'
-                  onSearch={lookupPlaces}
-                  onSelect={(v) => send('INPUT_LOCATION', { location: v })}
-                  selectedValue={location}
-                  selectId={v => v.id}
-                  mapTextValue={(val) => val ? val.text : ''}
+                  onChange={(e) => send({ type: 'INPUT_NICK_NAME', nickName: e.target.value })}
                 />
                 <MDInput
                   label='Twitter'
                   defaultValue={twitter}
-                  onChange={(e) => send('INPUT_TWITTER', { twitter: e.target.value })}
+                  onChange={(e) => send({ type: 'INPUT_TWITTER', twitter: e.target.value })}
                 />
                 <MDInput
                   label='Github'
                   defaultValue={github}
-                  onChange={(e) => send('INPUT_GITHUB', { github: e.target.value })}
+                  onChange={(e) => send({ type: 'INPUT_GITHUB', github: e.target.value })}
                 />
                 <MDInput
                   label='Discord'
                   defaultValue={discord}
-                  onChange={(e) => send('INPUT_DISCORD', { discord: e.target.value })}
+                  onChange={(e) => send({ type: 'INPUT_DISCORD', discord: e.target.value })}
                 />
                 <MDInput
                   label='Telegram'
                   defaultValue={telegram}
-                  onChange={(e) => send('INPUT_TELEGRAM', { telegram: e.target.value })}
+                  onChange={(e) => send({ type: 'INPUT_TELEGRAM', telegram: e.target.value })}
                 />
               </div>
             </div>
@@ -174,22 +205,28 @@ export const UserInformation = (): JSX.Element => {
             <div className='Profile__section'>
               <div className='Profile__gallery-container'>
                 <h2 className='Profile__title'>Monkes</h2>
-                <div className='Profile__gallery'>
-                  {nftArray
-                    .sort((a, b) => a.mint.localeCompare(b.mint))
-                    .map(x => (
-                      <div
-                        key={x.mint}
-                        className={`nft_gallery ${x.mint === nft.id ? 'nft_gallery--selected' : ''}`}
-                      >
-                        <img
-                          className='nft_gallery_img'
-                          src={x.imageUri}
-                          onClick={()=> send('SELECT_MONK', { nft: {id: x.mint, imageUri: x.imageUri, monkeNo: x.nftNumber } })}
-                        ></img>
+                {
+                  nftArray.length === 0 ?
+                    (<div className='Profile__gallery-none'>You don't have any Monkes :(</div>) :
+                    (
+                      <div className='Profile__gallery'>
+                        {nftArray
+                          .sort((a, b) => a.mint.localeCompare(b.mint))
+                          .map(x => (
+                            <div
+                              key={x.mint}
+                              className={`nft_gallery ${x.mint === nft.id ? 'nft_gallery--selected' : ''}`}
+                            >
+                              <img
+                                className='nft_gallery_img'
+                                src={x.imageUri}
+                                onClick={()=> send({ type: 'SELECT_MONK', nft: {id: x.mint, imageUri: x.imageUri, monkeNo: x.nftNumber } })}
+                              ></img>
+                            </div>
+                        ))}
                       </div>
-                  ))}
-                </div>
+                    )
+                }
               </div>
             </div>
 

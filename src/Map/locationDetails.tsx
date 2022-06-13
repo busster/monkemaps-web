@@ -31,6 +31,10 @@ export const LocationDetails: React.FunctionComponent = (): JSX.Element => {
   const location = useLocationDetails();
 
   console.log(location)
+  let extraLink = location?.extraLink;
+  if (extraLink !== undefined && !extraLink?.startsWith('http')) {
+    extraLink = `http://${extraLink}`;
+  }
 
   return (
     <div className='Map-Location-Details__container'>
@@ -68,10 +72,10 @@ export const LocationDetails: React.FunctionComponent = (): JSX.Element => {
           }
         </div>
         {
-          location?.extraLink ? (
+          extraLink ? (
             <div className='Map-Location-Details__info'>
               <div className='Map-Location-Details__info-label'>External Link:</div>
-              <a href={location?.link} className='Map-Location-Details-link' target='_blank'>
+              <a href={extraLink} className='Map-Location-Details-link' target='_blank'>
                 more resources
                 <img
                   className='Map-Location-Details-link-icon'
