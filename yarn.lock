@@ -11095,7 +11095,7 @@
     "browserslist" "^4.16.6"
     "postcss-selector-parser" "^6.0.4"
 
-"supercluster@^7.1.4":
+"supercluster@^7.1.4", "supercluster@^7.1.5":
   "integrity" "sha512-EulshI3pGUM66o6ZdH3ReiFcvHpM3vAigyK+vcxdjpJyEbIIrtbmBdY23mGgnI24uXiGFvrGq9Gkum/8U7vJWg=="
   "resolved" "https://registry.npmjs.org/supercluster/-/supercluster-7.1.5.tgz"
   "version" "7.1.5"

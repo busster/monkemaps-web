@@ -29,7 +29,7 @@ export const LocationList = ({ locations, virtualLocations, loading, activeLocat
     return (
       <div className='Map-LocationList'>
         <div className='Map-LocationList__tabs'>
-          <div className={`Map-LocationList__tab ${view === 'Physical' ? 'Map-LocationList__tab--active' : ''}`} onClick={() => setView('Physical')}>Physical</div>
+          <div className={`Map-LocationList__tab ${view === 'Physical' ? 'Map-LocationList__tab--active' : ''}`} onClick={() => setView('Physical')}>IRL</div>
           <div className={`Map-LocationList__tab ${view === 'Virtual' ? 'Map-LocationList__tab--active' : ''}`} onClick={() => setView('Virtual')}>Virtual</div>
         </div>
         <div className='Map-LocationList__list'>
@@ -39,7 +39,7 @@ export const LocationList = ({ locations, virtualLocations, loading, activeLocat
                 locations.length === 0 ?
                   (
                     <div className='Map-LocationList__empty'>
-                      <div>No visible pins.</div>
+                      <div>No visible events.</div>
                     </div>
                   ) :
                   (

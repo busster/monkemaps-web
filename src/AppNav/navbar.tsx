@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, useEffect, useMemo } from 'react';
 import { ConnectionProvider, useWallet, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
@@ -25,10 +25,24 @@ import {
 
 import '@solana/wallet-adapter-react-ui/styles.css';
 import '../App.css';
+import { useActor } from '@xstate/react';
+import { UserMachine } from '../Profile/machine';
 
 
 export const AppNavBar = () => {
   const { publicKey } = useWallet();
+
+  useEffect(() => {
+    if (!publicKey) {
+      const service = UserMachine.get(undefined);
+      service.send('DISCONNECT');
+      return;
+    }
+
+    const walletId = publicKey?.toBase58();
+    const service = UserMachine.get(walletId);
+      service.send('CONNECT', { walletId });
+  }, [publicKey]);
 
   return (
     <nav className='App__nav'>
