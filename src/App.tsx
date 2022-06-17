@@ -13,7 +13,7 @@ import {
 } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
 import {
-  BrowserRouter as Router,
+  HashRouter,
 } from "react-router-dom";
 
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -52,12 +52,12 @@ export const App = () => {
       <ConnectionProvider endpoint={endpoint}>
         <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider>
-            <Router>
+            <HashRouter>
               <div>
                 <AppNavBar />
                 <AppRoutes />
               </div>
-            </Router>
+            </HashRouter>
           </WalletModalProvider>
         </WalletProvider>
       </ConnectionProvider>
