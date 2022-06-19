@@ -99,13 +99,24 @@ const fetchUser = async (context: UserContext) => {
 }
 
 const findLocation = (event: ENABLE_LOCATION_EVENT): Promise<{ location: Location, targetState: string }> => {
+  const defaultLocation = {
+    id: '',
+    enabled: true,
+    text: '',
+    coordinates: [0,0]
+  } as Location;
+
   return new Promise((resolve, reject) => {
+    const error = (e: any) => {
+      resolve({ location: defaultLocation, targetState: event.targetState });
+    }
+
     const success = (position: any) => {
-      const { latitude, longitude } = position.coords
+      const { latitude, longitude } = position.coords;
       
       lookupPlaces(`${longitude},${latitude}`).then((places: any) => {
         if (!places || places.length === 0) {
-          reject();
+          error(null);
         }
         const place = places[0];
         resolve({
@@ -116,9 +127,9 @@ const findLocation = (event: ENABLE_LOCATION_EVENT): Promise<{ location: Locatio
           },
           targetState: event.targetState
         })
-      }).catch(reject);
+      }).catch(error);
     }
-    navigator.geolocation.getCurrentPosition(success, reject);
+    navigator.geolocation.getCurrentPosition(success, error);
   })
 }
 
@@ -256,7 +267,10 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
           }
         ],
         onError: {
-          target: 'loading'
+          target: 'loading',
+          actions: (context, event) => {
+            console.log('THIS BROKE???')
+          }
         }
       }
     },
@@ -264,21 +278,45 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
       states: {
         valid: {
           on: {
-            SAVE: '#user.createUser'
+            SAVE: [
+              {
+                target: '#user.createUser',
+                cond: 'hasAllRequiredFields',
+              },
+              {
+                target: 'invalid'
+              }
+            ],
           }
         },
         invalid: {},
       },
       on: {
-        SELECT_MONK: {
-          actions: ['setNft']
-        },
+        SELECT_MONK: [
+          {
+            actions: ['setNft'],
+            target: '.valid',
+            cond: 'hasAllRequiredFields'
+          },
+          {
+            actions: ['setNft'],
+            target: '.invalid',
+          }
+        ],
         INPUT_LOCATION: {
           actions: ['setLocation']
         },
-        INPUT_NICK_NAME: {
-          actions: ['setNickName'],
-        },
+        INPUT_NICK_NAME: [
+          {
+            actions: ['setNickName'],
+            target: '.valid',
+            cond: 'hasAllRequiredFields'
+          },
+          {
+            actions: ['setNickName'],
+            target: '.invalid',
+          }
+        ],
         INPUT_TWITTER: {
           actions: ['setTwitter'],
         },
@@ -306,18 +344,32 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
     display: {
       on: {
         DELETE: 'deleteUser',
-        SELECT_MONK: {
-          target: 'edit.valid',
-          actions: ['setNft']
-        },
+        SELECT_MONK: [
+          {
+            actions: ['setNft'],
+            target: 'edit.valid',
+            cond: 'hasAllRequiredFields'
+          },
+          {
+            actions: ['setNft'],
+            target: 'edit.invalid',
+          }
+        ],
         INPUT_LOCATION: {
           target: 'edit.valid',
           actions: ['setLocation']
         },
-        INPUT_NICK_NAME: {
-          target: 'edit.valid',
-          actions: ['setNickName'],
-        },
+        INPUT_NICK_NAME: [
+          {
+            actions: ['setNickName'],
+            target: 'edit.valid',
+            cond: 'hasAllRequiredFields'
+          },
+          {
+            actions: ['setNickName'],
+            target: 'edit.invalid',
+          }
+        ],
         INPUT_TWITTER: {
           target: 'edit.valid',
           actions: ['setTwitter'],
@@ -351,22 +403,46 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
       states: {
         valid: {
           on: {
-            SAVE: '#user.updateUser'
+            SAVE: [
+              {
+                target: '#user.updateUser',
+                cond: 'hasAllRequiredFields',
+              },
+              {
+                target: 'invalid'
+              }
+            ]
           }
         },
         invalid: {},
       },
       on: {
         RESET: 'loading',
-        SELECT_MONK: {
-          actions: ['setNft']
-        },
+        SELECT_MONK: [
+          {
+            actions: ['setNft'],
+            target: '.valid',
+            cond: 'hasAllRequiredFields'
+          },
+          {
+            actions: ['setNft'],
+            target: '.invalid',
+          }
+        ],
         INPUT_LOCATION: {
           actions: ['setLocation']
         },
-        INPUT_NICK_NAME: {
-          actions: ['setNickName'],
-        },
+        INPUT_NICK_NAME: [
+          {
+            actions: ['setNickName'],
+            target: '.valid',
+            cond: 'hasAllRequiredFields'
+          },
+          {
+            actions: ['setNickName'],
+            target: '.invalid',
+          }
+        ],
         INPUT_TWITTER: {
           actions: ['setTwitter'],
         },
@@ -499,7 +575,12 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
   },
   guards: {
     userNotFound: (context, event) => (event as any).data.status === 404,
-    geolocationEnabled: (context, event) => (event as ENABLE_LOCATION_EVENT).enabled && !!navigator.geolocation
+    geolocationEnabled: (context, event) => (event as ENABLE_LOCATION_EVENT).enabled && !!navigator.geolocation,
+    hasAllRequiredFields: (context, event: any) => {
+      const nft = event.nft !== undefined ? event.nft : context.nft;
+      const nickName = event.nickName !== undefined ? event.nickName : context.nickName;
+      return !!nft.id && nickName.length > 0;
+    },
   }
 });
 

@@ -71,7 +71,11 @@ export const UserInformation = (): JSX.Element => {
     location,
   } = state.context;
 
-  console.log(state);
+  console.log(state.value);
+  console.log(state.context);
+
+  const monkeSelectionError = ['edit.invalid', 'create.invalid'].some(state.matches) && !state.context.nft.id;
+  const nickNameError = ['edit.invalid', 'create.invalid'].some(state.matches) && !state.context.nickName;
 
   if (state.matches('none')) {
     return <Navigate to='/map'></Navigate>
@@ -135,19 +139,19 @@ export const UserInformation = (): JSX.Element => {
                       <div
                         className='Profile__location-switch-label'
                         onClick={() => send({ type: 'INPUT_LOCATION_ENABLED', enabled: !location.enabled, targetState: JSON.stringify(state.value) })}
-                      >{ location.enabled ? 'Location Enabled' : 'Location Disabled' }</div>
+                      >{ location.enabled ? 'Show Monke on Map' : "Hide Monke on map" }</div>
                     )
                 }
               </div>
               <div className='Profile__location-info'>
-                Your location will be used to show a pin on the map with your Monke and user information. 
+                The selected location will be used to show a pin on the map with your Monke and user information. 
                 This will let you and other Monkes' see who is in the area!
               </div>
               {
                 location.enabled &&
                 (
                   <div className='Profile__location-info'>
-                    By default your location is set to your device's location. 
+                    By default if location access is granted your location is set to your device's location. 
                     You can override this by searching for a different location below.
                   </div>
                 )
@@ -175,7 +179,8 @@ export const UserInformation = (): JSX.Element => {
               <h2 className='Profile__title'>User Information</h2>
               <div className='Profile__form'>
                 <MDInput
-                  label='Nick Name'
+                  error={nickNameError}
+                  label='Nick Name *'
                   defaultValue={nickName}
                   onChange={(e) => send({ type: 'INPUT_NICK_NAME', nickName: e.target.value })}
                 />
@@ -204,7 +209,13 @@ export const UserInformation = (): JSX.Element => {
 
             <div className='Profile__section'>
               <div className='Profile__gallery-container'>
-                <h2 className='Profile__title'>Monkes</h2>
+                <h2 className={`Profile__title ${monkeSelectionError ? 'Profile__monke-selection-text--error' : ''}`}>Monkes</h2>
+                {
+                  monkeSelectionError &&
+                  (
+                    <div className='Profile__monke-selection-text Profile__monke-selection-text--error'>Monke selection is required.</div>
+                  )
+                }
                 {
                   nftArray.length === 0 ?
                     (<div className='Profile__gallery-none'>You don't have any Monkes :(</div>) :

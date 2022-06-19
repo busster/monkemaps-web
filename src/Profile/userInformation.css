@@ -62,6 +62,13 @@
 .Profile__location-info {
   margin: 1rem 0;
 }
+.Profile__monke-selection-text {
+  margin: 1rem 0;
+}
+.Profile__monke-selection-text--error {
+  color: var(--colors_light-red);
+}
+
 
 .Profile__location-switch {
   display: flex;
@@ -114,8 +121,15 @@
   border: 1px solid var(--colors_white);
   box-sizing: border-box;
   transition: all 250ms ease;
+  border-radius: 6px;
+  overflow: hidden;
 }
-.nft_gallery--selected, .nft_gallery:hover {
+.nft_gallery--selected {
+  border: 1px solid var(--colors_dark-green);
+  opacity: 1;
+  border-radius: 12px;
+}
+.nft_gallery:hover {
   border: 1px solid var(--colors_dark-green);
   opacity: 1;
 }
