@@ -59,6 +59,7 @@
   border-color: var(--colors_light-grey);
   border-style: solid;
   box-sizing: border-box;
+  border-width: 1px;
 }
 .md-dropdown-search__results-item:nth-last-child(n + 2) {
   border-bottom: 1px;

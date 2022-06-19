@@ -268,7 +268,7 @@ export const mapMachine = createMachine<MapContext, MapEvents>({
           text,
         } = location;
 
-        const showLocation = text !== '' && monkeNumber;
+        const showLocation = text !== '' && nickName !== '' && monkeNumber;
 
         const coordinates = [parseFloat(latitude), parseFloat(longitude)];
         let coords = coordinates;
