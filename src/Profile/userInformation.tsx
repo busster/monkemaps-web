@@ -49,7 +49,8 @@ export const UserInformation = (): JSX.Element => {
         }
       }
       if (!active) { return }
-      setNftArray(nftResult)
+      setNftArrayLoading(false);
+      setNftArray(nftResult);
     }
   }, [walletId]);
 
@@ -71,9 +72,6 @@ export const UserInformation = (): JSX.Element => {
     nft,
     location,
   } = state.context;
-
-  console.log(state.value);
-  console.log(state.context);
 
   const monkeSelected = !!state.context.nft.id;
   const monkeSelectionError = ['edit.invalid', 'create.invalid'].some(state.matches) && !monkeSelected;
@@ -121,7 +119,7 @@ export const UserInformation = (): JSX.Element => {
 
             <div className='Profile__section'>
               <div className='Profile__gallery-container'>
-                <h2 className={`Profile__title ${monkeSelectionError ? 'Profile__monke-selection-text--error' : ''}`}>Monkes</h2>
+                <h2 className={`Profile__title ${monkeSelectionError ? 'Profile__monke-selection-text--error' : ''}`}>Monkes *</h2>
                 {
                   monkeSelectionError &&
                   (
