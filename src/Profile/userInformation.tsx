@@ -18,6 +18,7 @@ import { CONSTANTS } from '../constants';
 export const UserInformation = (): JSX.Element => {
   const { publicKey } = useWallet();
   const { connection } = useConnection();
+  const [nftArrayLoading, setNftArrayLoading] = useState(true);
   const [nftArray, setNftArray] = useState<NftData[]>([]);
   const walletId = publicKey?.toBase58();
 
@@ -74,7 +75,8 @@ export const UserInformation = (): JSX.Element => {
   console.log(state.value);
   console.log(state.context);
 
-  const monkeSelectionError = ['edit.invalid', 'create.invalid'].some(state.matches) && !state.context.nft.id;
+  const monkeSelected = !!state.context.nft.id;
+  const monkeSelectionError = ['edit.invalid', 'create.invalid'].some(state.matches) && !monkeSelected;
   const nickNameError = ['edit.invalid', 'create.invalid'].some(state.matches) && !state.context.nickName;
 
   if (state.matches('none')) {
@@ -118,6 +120,44 @@ export const UserInformation = (): JSX.Element => {
             </div>
 
             <div className='Profile__section'>
+              <div className='Profile__gallery-container'>
+                <h2 className={`Profile__title ${monkeSelectionError ? 'Profile__monke-selection-text--error' : ''}`}>Monkes</h2>
+                {
+                  monkeSelectionError &&
+                  (
+                    <div className='Profile__monke-selection-text Profile__monke-selection-text--error'>Monke selection is required.</div>
+                  )
+                }
+                {
+                  nftArray.length === 0 ?
+                    (
+                        nftArrayLoading ?
+                          (<div>Loading your Monkes...</div>) :
+                          (<div className='Profile__gallery-none'>You don't have any Monkes :(</div>)
+                    ) :
+                    (
+                      <div className='Profile__gallery'>
+                        {nftArray
+                          .sort((a, b) => a.mint.localeCompare(b.mint))
+                          .map(x => (
+                            <div
+                              key={x.mint}
+                              className={`nft_gallery ${x.mint === nft.id ? 'nft_gallery--selected' : ''}`}
+                            >
+                              <img
+                                className='nft_gallery_img'
+                                src={x.imageUri}
+                                onClick={()=> send({ type: 'SELECT_MONK', nft: {id: x.mint, imageUri: x.imageUri, monkeNo: x.nftNumber } })}
+                              ></img>
+                            </div>
+                        ))}
+                      </div>
+                    )
+                }
+              </div>
+            </div>
+
+            {monkeSelected && <div className='Profile__section'>
               <h2 className='Profile__title'>User Location</h2>
               <div className='Profile__location-switch'>
                 <MDSwitch
@@ -173,9 +213,9 @@ export const UserInformation = (): JSX.Element => {
                   </div>
                 )
               }
-            </div>
+            </div>}
             
-            <div className='Profile__section'>
+            {monkeSelected && <div className='Profile__section'>
               <h2 className='Profile__title'>User Information</h2>
               <div className='Profile__form'>
                 <MDInput
@@ -205,41 +245,7 @@ export const UserInformation = (): JSX.Element => {
                   onChange={(e) => send({ type: 'INPUT_TELEGRAM', telegram: e.target.value })}
                 />
               </div>
-            </div>
-
-            <div className='Profile__section'>
-              <div className='Profile__gallery-container'>
-                <h2 className={`Profile__title ${monkeSelectionError ? 'Profile__monke-selection-text--error' : ''}`}>Monkes</h2>
-                {
-                  monkeSelectionError &&
-                  (
-                    <div className='Profile__monke-selection-text Profile__monke-selection-text--error'>Monke selection is required.</div>
-                  )
-                }
-                {
-                  nftArray.length === 0 ?
-                    (<div className='Profile__gallery-none'>You don't have any Monkes :(</div>) :
-                    (
-                      <div className='Profile__gallery'>
-                        {nftArray
-                          .sort((a, b) => a.mint.localeCompare(b.mint))
-                          .map(x => (
-                            <div
-                              key={x.mint}
-                              className={`nft_gallery ${x.mint === nft.id ? 'nft_gallery--selected' : ''}`}
-                            >
-                              <img
-                                className='nft_gallery_img'
-                                src={x.imageUri}
-                                onClick={()=> send({ type: 'SELECT_MONK', nft: {id: x.mint, imageUri: x.imageUri, monkeNo: x.nftNumber } })}
-                              ></img>
-                            </div>
-                        ))}
-                      </div>
-                    )
-                }
-              </div>
-            </div>
+            </div>}
 
             {state.matches('display') && (
               <button
