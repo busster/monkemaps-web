@@ -59,7 +59,7 @@ export const Marker = ({ pin, handleOnclick, handleOnmouseenter, handleOnmousele
 
   const date = document.createElement('div');
   date.className = 'Map-Marker__date';
-  date.innerText = pin.startDate.toFormat('LLL LL, yyyy, hh:mm a');
+  date.innerText = pin.startDate.toFormat('LLL dd, yyyy, hh:mm a');
   
   popover.appendChild(title);
 

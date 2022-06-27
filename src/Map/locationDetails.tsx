@@ -52,7 +52,7 @@ export const LocationDetails: React.FunctionComponent = (): JSX.Element => {
 
         <div className='Map-Location-Details__info'>
           <div className='Map-Location-Details__info-label'>Date:</div>
-          <div className='Map-Location-Details__info-value'>{location?.startDate.toFormat('cccc, LLLL LL, yyyy, hh:mm a')}</div>
+          <div className='Map-Location-Details__info-value'>{location?.startDate.toFormat('cccc, LLLL dd, yyyy, hh:mm a')}</div>
         </div>
 
         <div className='Map-Location-Details__info'>
