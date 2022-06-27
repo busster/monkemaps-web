@@ -49,7 +49,7 @@ export const LocationList = ({ locations, virtualLocations, loading, activeLocat
                           <div className='Map-LocationList__item-container'>
                             <div className='Map-LocationList__item-header'>{ pin.name }</div>
                             <div className='Map-LocationList__item-address'>{ pin.text }</div>
-                            <div className='Map-LocationList__item-date'>{ pin.startDate.toFormat('ccc, LLL LL, yyyy, hh:mm a') }</div>
+                            <div className='Map-LocationList__item-date'>{ pin.startDate.toFormat('ccc, LLL dd, yyyy, hh:mm a') }</div>
                           </div>
                         </Link>
                       </div>
@@ -70,7 +70,7 @@ export const LocationList = ({ locations, virtualLocations, loading, activeLocat
                           <div className='Map-LocationList__item-container'>
                             <div className='Map-LocationList__item-header'>{ pin.name }</div>
                             <div className='Map-LocationList__item-address'>{ pin.text }</div>
-                            <div className='Map-LocationList__item-date'>{ pin.startDate.toFormat('ccc, LLL LL, yyyy, hh:mm a') }</div>
+                            <div className='Map-LocationList__item-date'>{ pin.startDate.toFormat('ccc, LLL dd, yyyy, hh:mm a') }</div>
                           </div>
                         </Link>
                       </div>
