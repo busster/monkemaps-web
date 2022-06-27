@@ -16,13 +16,15 @@ import { MDInput, MDDropdownSearch, MDSwitch } from '../design';
 import { CONSTANTS } from '../constants';
 
 export const UserInformation = (): JSX.Element => {
-  const { publicKey } = useWallet();
+  const wallet = useWallet();
   const { connection } = useConnection();
   const [nftArrayLoading, setNftArrayLoading] = useState(true);
   const [nftArray, setNftArray] = useState<NftData[]>([]);
+  const { publicKey } = wallet;
   const walletId = publicKey?.toBase58();
 
-  const [state, send] = useActor(UserMachine.get(walletId));
+  const [state, send] = useActor(UserMachine.get({ wallet }));
+  console.log(state)
   useEffect(() => {
     let active = true
     load()

@@ -21,7 +21,7 @@ export const ViewUserInformation = (): JSX.Element => {
   const walletId = monkeId;
 
   const [state, send] = useMachine(() =>
-    createUserMachine(walletId)
+    createUserMachine({ walletId })
   );
 
   // const state = {matches: (s: any) => Boolean, value: '', context: {lat: 0, lng: 0}};

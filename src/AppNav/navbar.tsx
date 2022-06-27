@@ -30,18 +30,18 @@ import { UserMachine } from '../Profile/machine';
 
 
 export const AppNavBar = () => {
-  const { publicKey } = useWallet();
+  const wallet = useWallet();
+  const { publicKey } = wallet;
 
   useEffect(() => {
     if (!publicKey) {
-      const service = UserMachine.get(undefined);
+      const service = UserMachine.get({});
       service.send('DISCONNECT');
       return;
     }
 
-    const walletId = publicKey?.toBase58();
-    const service = UserMachine.get(walletId);
-      service.send('CONNECT', { walletId });
+    const service = UserMachine.get({ wallet });
+    service.send('CONNECT', { wallet });
   }, [publicKey]);
 
   return (

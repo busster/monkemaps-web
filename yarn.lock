@@ -3502,6 +3502,11 @@
   dependencies:
     "safe-buffer" "^5.0.1"
 
+"base-x@^4.0.0":
+  "integrity" "sha512-FuwxlW4H5kh37X/oW59pwTzzTKRzfrrQwhmyspRM7swOEZcHtDZSCt45U6oKgtuFE+WYPblePMVIPR4RZrh/hw=="
+  "resolved" "https://registry.npmjs.org/base-x/-/base-x-4.0.0.tgz"
+  "version" "4.0.0"
+
 "base@^0.11.1":
   "integrity" "sha512-5T6P4xPgpp0YDFvSWwEZ4NoE3aM4QBQXDzmVbraCkFj8zHM+mba8SyqB5DbZWyR7mYHo6Y7BdQo3MoA4m0TeQg=="
   "resolved" "https://registry.npmjs.org/base/-/base-0.11.2.tgz"
@@ -3820,12 +3825,26 @@
     "node-releases" "^2.0.3"
     "picocolors" "^1.0.0"
 
-"bs58@^4.0.0", "bs58@^4.0.1", "bs58@4.0.1":
+"bs58@^4.0.0", "bs58@4.0.1":
   "integrity" "sha512-Ok3Wdf5vOIlBrgCvTq96gBkJw+JUEzdBgyaza5HLtPm7yTHkjRy8+JzNyHF7BHa0bNWOQIp3m5YF0nnFcOIKLw=="
   "resolved" "https://registry.npmjs.org/bs58/-/bs58-4.0.1.tgz"
   "version" "4.0.1"
   dependencies:
     "base-x" "^3.0.2"
+
+"bs58@^4.0.1":
+  "integrity" "sha512-Ok3Wdf5vOIlBrgCvTq96gBkJw+JUEzdBgyaza5HLtPm7yTHkjRy8+JzNyHF7BHa0bNWOQIp3m5YF0nnFcOIKLw=="
+  "resolved" "https://registry.npmjs.org/bs58/-/bs58-4.0.1.tgz"
+  "version" "4.0.1"
+  dependencies:
+    "base-x" "^3.0.2"
+
+"bs58@^5.0.0":
+  "integrity" "sha512-r+ihvQJvahgYT50JD05dyJNKlmmSlMoOGwn1lCcEzanPglg7TxYjioQUYehQ9mAR/+hOSd2jRc/Z2y5UxBymvQ=="
+  "resolved" "https://registry.npmjs.org/bs58/-/bs58-5.0.0.tgz"
+  "version" "5.0.0"
+  dependencies:
+    "base-x" "^4.0.0"
 
 "bs58check@^2.1.1", "bs58check@^2.1.2", "bs58check@<3.0.0":
   "integrity" "sha512-0TS1jicxdU09dwJMNZtVAfzPi6Q6QeN0pM1Fkzrjn+XYHvzMKPU3pHVpva+769iNVSfIYWf7LJ6WR+BuuMf8cA=="
