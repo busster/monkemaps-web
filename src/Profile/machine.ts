@@ -3,6 +3,9 @@ import { customAlphabet } from "nanoid";
 
 import { CONSTANTS } from "../constants";
 import { mapService } from "../Map/machine";
+import { WalletContextState } from "@solana/wallet-adapter-react";
+
+const bs58 = require('bs58');
 
 const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 20);
 
@@ -37,6 +40,7 @@ type Location = {
 }
 type UserContext = {
   walletId: string,
+  signMessage: any,
   nickName: string,
   twitter: string,
   github: string,
@@ -46,7 +50,7 @@ type UserContext = {
   location: Location,
 };
 
-type CONNECT_EVENT = { type: 'CONNECT', walletId: string };
+type CONNECT_EVENT = { type: 'CONNECT', wallet: WalletContextState };
 type SELECT_MONK_EVENT = { type: 'SELECT_MONK', nft: NFT };
 type INPUT_LOCATION_EVENT = { type: 'INPUT_LOCATION', location: Location };
 type INPUT_NICK_NAME_EVENT = { type: 'INPUT_NICK_NAME', nickName: string };
@@ -70,20 +74,40 @@ type UserEvents =
   | INPUT_DISCORD_EVENT
   | ENABLE_LOCATION_EVENT;
 
-const createUserContext = (walletId: string | undefined): UserContext => Object.assign({
-  walletId,
-  nft: {},
-  nickName: '',
-  twitter: '',
-  github: '',
-  telegram: '',
-  discord: '',
-  location: {
-    enabled: false,
-    text: '',
-    coordinates: [0,0]
+const createUserContext = (wallet: WalletContextState | undefined, walletId: string | undefined): UserContext => {
+  return Object.assign({
+    walletId: walletId || wallet?.publicKey?.toBase58(),
+    signMessage: wallet?.signMessage,
+    nft: {},
+    nickName: '',
+    twitter: '',
+    github: '',
+    telegram: '',
+    discord: '',
+    location: {
+      enabled: false,
+      text: '',
+      coordinates: [0,0]
+    }
+  });
+}
+
+const mapHeaders = async (context: UserContext) => {
+  const { walletId, signMessage } = context;
+  const message = `Sign this message for authenticating with your wallet. Nonce: ${walletId}`;
+  const encodedMessage = new TextEncoder().encode(message);
+  if (!walletId) throw new Error("Wallet not connected!");
+  if (!signMessage) throw new Error("Wallet does not support message signing!");
+  const signedMessage = await signMessage(encodedMessage);
+  const signedAndEncodedMessage = bs58.encode(signedMessage);
+
+  return {
+    'x-auth-nonce': walletId,
+    'x-auth-message': btoa(message),
+    'x-auth-signed': signedAndEncodedMessage,
+    'x-auth-pk': walletId,
   }
-});
+};
 
 const fetchUser = async (context: UserContext) => {
   const response = await fetch(`${CONSTANTS.API_URL}/users/${context.walletId}`, {
@@ -138,6 +162,7 @@ const createUser = async (context: UserContext) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...await mapHeaders(context),
     },
     body: JSON.stringify({
       walletId: context.walletId,
@@ -169,6 +194,7 @@ const updateUser = async (context: UserContext) => {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      ...await mapHeaders(context),
     },
     body: JSON.stringify({
       walletId: context.walletId,
@@ -198,6 +224,9 @@ const updateUser = async (context: UserContext) => {
 const deleteUser = async (context: UserContext) => {
   const response = await fetch(`${CONSTANTS.API_URL}/users/${context.walletId}`, {
     method: 'DELETE',
+    headers: {
+      ...await mapHeaders(context),
+    }
   });
 
   if (response.ok) {
@@ -207,19 +236,19 @@ const deleteUser = async (context: UserContext) => {
   }
 }
 
-export const createUserMachine = (walletId: string | undefined) => createMachine<UserContext, UserEvents>({
+export const createUserMachine = ({ wallet, walletId }: { wallet?: WalletContextState, walletId?: string }) => createMachine<UserContext, UserEvents>({
   id: 'user',
 
-  context: createUserContext(walletId),
+  context: createUserContext(wallet, walletId),
 
-  initial: walletId ? 'loading' : 'none',
+  initial: (walletId || wallet?.publicKey?.toBase58()) ? 'loading' : 'none',
 
   states: {
     none: {
       on: {
         CONNECT: {
           target: 'loading',
-          actions: ['setWalletId']
+          actions: ['setWallet']
         }
       }
     },
@@ -492,7 +521,10 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
     deleteUser: {
       invoke: {
         src: (context, event) => deleteUser(context),
-        onDone: 'create.valid',
+        onDone: {
+          target:'create.valid',
+          actions: ['reloadMap']
+        },
         onError: 'display'
       }
     }
@@ -503,8 +535,9 @@ export const createUserMachine = (walletId: string | undefined) => createMachine
 },
 {
   actions: {
-    setWalletId: assign({
-      walletId: (context, event) => (event as CONNECT_EVENT).walletId
+    setWallet: assign({
+      walletId: (context, event) => (event as CONNECT_EVENT).wallet.publicKey?.toBase58() || '',
+      signMessage: (context, event) => (event as CONNECT_EVENT).wallet.signMessage,
     }),
     setUser: assign({
       nickName: (context, event: any) => event.data.nickName,
@@ -591,9 +624,9 @@ export const UserMachine = (() => {
 }, ResolveTypegenMeta<TypegenDisabled, UserEvents, BaseActionObject, ServiceMap>>;
 
   return {
-    get: (walletId: string | undefined) => {
+    get: ({ wallet, walletId }: { wallet?: WalletContextState, walletId?: string }) => {
       if (!service) {
-        service = interpret(createUserMachine(walletId)).start();
+        service = interpret(createUserMachine({ wallet, walletId })).start();
       }
       return service;
     }
