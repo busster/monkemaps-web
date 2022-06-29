@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { getParsedNftAccountsByOwner } from '@nfteyez/sol-rayz';
 import { Link, Navigate } from 'react-router-dom';
@@ -12,8 +12,7 @@ import './userInformation.css';
 import { NftData, MetaData } from '../Models/nft';
 import axios from 'axios';
 import { chunkItems } from '../utils/promises';
-import { MDInput, MDDropdownSearch, MDSwitch } from '../design';
-import { CONSTANTS } from '../constants';
+import { MDInput, MDDropdownSearch, MDSwitch, MDCheckbox } from '../design';
 
 export const UserInformation = (): JSX.Element => {
   const wallet = useWallet();
@@ -23,7 +22,7 @@ export const UserInformation = (): JSX.Element => {
   const { publicKey } = wallet;
   const walletId = publicKey?.toBase58();
 
-  const [state, send] = useActor(UserMachine.get({ wallet }));
+  const [state, send] = useActor(UserMachine.get({ wallet, connection }));
   console.log(state)
   useEffect(() => {
     let active = true
@@ -38,7 +37,7 @@ export const UserInformation = (): JSX.Element => {
           publicAddress: walletId,
           connection
         });
-        nftResult = nftResult.filter(x => x.updateAuthority == process.env.REACT_APP_NFT_UA);
+        nftResult = nftResult.filter(x => x.updateAuthority === process.env.REACT_APP_NFT_UA);
         const nftChunks = chunkItems(nftResult);
         for (const chunk of nftChunks) {
           await Promise.all(
@@ -54,7 +53,7 @@ export const UserInformation = (): JSX.Element => {
       setNftArrayLoading(false);
       setNftArray(nftResult);
     }
-  }, [walletId]);
+  }, [walletId, connection]);
 
   // const state = {matches: (s: any) => Boolean, value: '', context: {lat: 0, lng: 0}};
   // const send = (s: string, a?: any) => {}
@@ -73,6 +72,7 @@ export const UserInformation = (): JSX.Element => {
     discord,
     nft,
     location,
+    isHardware,
   } = state.context;
 
   const monkeSelected = !!state.context.nft.id;
@@ -119,6 +119,19 @@ export const UserInformation = (): JSX.Element => {
               <WalletMultiButton />
             </div>
 
+            {monkeSelected && <div className='Profile__section'>
+              <h3 className='Profile__title'>Using Hardware Wallet?</h3>
+              <div className='Profile__hardware-switch'>
+                <MDCheckbox
+                  checked={isHardware}
+                  setChecked={(checked) => {
+                    send({ type: 'IS_HARDWARE_WALLET', isHardware: checked })
+                  }}
+                />
+              </div>
+              </div>
+            }
+
             <div className='Profile__section'>
               <div className='Profile__gallery-container'>
                 <h2 className={`Profile__title ${monkeSelectionError ? 'Profile__monke-selection-text--error' : ''}`}>Monkes *</h2>
@@ -146,6 +159,7 @@ export const UserInformation = (): JSX.Element => {
                             >
                               <img
                                 className='nft_gallery_img'
+                                alt='smb'
                                 src={x.imageUri}
                                 onClick={()=> send({ type: 'SELECT_MONK', nft: {id: x.mint, imageUri: x.imageUri, monkeNo: x.nftNumber } })}
                               ></img>

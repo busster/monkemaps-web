@@ -3,6 +3,7 @@ import { ConnectionProvider, useWallet, WalletProvider } from '@solana/wallet-ad
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
   GlowWalletAdapter,
+  LedgerWalletAdapter,
   PhantomWalletAdapter,
   SlopeWalletAdapter,
   SolflareWalletAdapter,
@@ -39,6 +40,7 @@ export const App = () => {
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
+      new LedgerWalletAdapter(),
       new GlowWalletAdapter(),
       new SlopeWalletAdapter(),
       new SolflareWalletAdapter({ network }),
