@@ -73,6 +73,9 @@
 .Profile__location-switch {
   display: flex;
 }
+.Profile__hardware-switch {
+  display: flex;
+}
 .Profile__location-switch-label {
   margin-left: 0.5rem;
   cursor: pointer;
