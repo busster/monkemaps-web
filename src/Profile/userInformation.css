@@ -1,4 +1,3 @@
-
 .Profile__back-link {
   text-decoration: none;
   margin: 1rem;
@@ -71,6 +70,9 @@
 
 
 .Profile__location-switch {
+  display: flex;
+}
+.Profile__hardware-switch {
   display: flex;
 }
 .Profile__location-switch-label {
