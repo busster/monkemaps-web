@@ -105,31 +105,46 @@ const createUserContext = (wallet: WalletContextState | undefined, walletId: str
 
 const mapHeaders = async (context: UserContext) => {
   const { walletId, signMessage, sendTransaction, signTransaction, isHardware, connection } = context;
+  const message = `Sign this message for authenticating with your wallet. Nonce: ${walletId}`;
   const conn = connection as Connection;
   if (isHardware) {
-    const blockHash = (await conn.getLatestBlockhash()).blockhash;
+    const response = await fetch(`${CONSTANTS.API_URL.replace('monkemaps', '')}auth`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({walletId, message: btoa(message)})
+    });
+  
+    const res = await response.json();
+    const latestBlockHash = await conn.getLatestBlockhash();
     const walletPk = new PublicKey(walletId);
     const transaction = new Transaction();
     transaction.feePayer = walletPk;
-    transaction.recentBlockhash = blockHash;
+    transaction.recentBlockhash = latestBlockHash.blockhash;
     transaction.add(SystemProgram.transfer({
       fromPubkey: walletPk,
-      toPubkey: walletPk,
-      lamports: 1,
+      toPubkey: new PublicKey(res.destination),
+      lamports: res.lamports,
     }));
     const signedTxn = await signTransaction(transaction);
-    const signature = await sendTransaction(signedTxn, conn);
-    await connection.confirmTransaction(signature, 'confirmed');
+    const txnSerialized = signedTxn.serialize();
+    const signature = await conn.sendRawTransaction(txnSerialized, { skipPreflight: true } );
+    await conn.confirmTransaction({
+      blockhash: latestBlockHash.blockhash,
+      lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+      signature,
+    }, 'confirmed');
     return {
       'x-auth-txn': signature,
       'x-auth-nonce': walletId,
-      'x-auth-message': '',
-      'x-auth-signed': '',
+      'x-auth-message': btoa(message),
+      'x-auth-signed': res.token,
       'x-auth-pk': walletId,
     }
   }
   else {
-    const message = `Sign this message for authenticating with your wallet. Nonce: ${walletId}`;
     const encodedMessage = new TextEncoder().encode(message);
     if (!walletId) throw new Error("Wallet not connected!");
     if (!signMessage) throw new Error("Wallet does not support message signing!");

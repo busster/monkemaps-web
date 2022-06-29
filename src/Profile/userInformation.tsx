@@ -12,7 +12,7 @@ import './userInformation.css';
 import { NftData, MetaData } from '../Models/nft';
 import axios from 'axios';
 import { chunkItems } from '../utils/promises';
-import { MDInput, MDDropdownSearch, MDSwitch } from '../design';
+import { MDInput, MDDropdownSearch, MDSwitch, MDCheckbox } from '../design';
 
 export const UserInformation = (): JSX.Element => {
   const wallet = useWallet();
@@ -120,9 +120,9 @@ export const UserInformation = (): JSX.Element => {
             </div>
 
             {monkeSelected && <div className='Profile__section'>
-              <h2 className='Profile__title'>Using Hardware Wallet?</h2>
+              <h3 className='Profile__title'>Using Hardware Wallet?</h3>
               <div className='Profile__hardware-switch'>
-                <MDSwitch
+                <MDCheckbox
                   checked={isHardware}
                   setChecked={(checked) => {
                     send({ type: 'IS_HARDWARE_WALLET', isHardware: checked })
