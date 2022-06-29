@@ -23,7 +23,7 @@ export const UserInformation = (): JSX.Element => {
   const { publicKey } = wallet;
   const walletId = publicKey?.toBase58();
 
-  const [state, send] = useActor(UserMachine.get({ wallet }));
+  const [state, send] = useActor(UserMachine.get({ wallet, connection }));
   console.log(state)
   useEffect(() => {
     let active = true
@@ -73,6 +73,7 @@ export const UserInformation = (): JSX.Element => {
     discord,
     nft,
     location,
+    isHardware,
   } = state.context;
 
   const monkeSelected = !!state.context.nft.id;
@@ -118,6 +119,19 @@ export const UserInformation = (): JSX.Element => {
               <h2 className='Profile__title'>Wallet</h2>
               <WalletMultiButton />
             </div>
+
+            {monkeSelected && <div className='Profile__section'>
+              <h2 className='Profile__title'>Using Hardware Wallet?</h2>
+              <div className='Profile__hardware-switch'>
+                <MDSwitch
+                  checked={isHardware}
+                  setChecked={(checked) => {
+                    send({ type: 'IS_HARDWARE_WALLET', isHardware: checked })
+                  }}
+                />
+              </div>
+              </div>
+            }
 
             <div className='Profile__section'>
               <div className='Profile__gallery-container'>
