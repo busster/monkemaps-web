@@ -70,7 +70,7 @@ export const ViewUserInformation = (): JSX.Element => {
             </div> 
 
             <div className='Profile__view-socials'>
-              { twitter && <a href={`https://twitter.com/${twitter}`} target="_blank" className='Profile__view-text'>
+              { twitter && <a href={twitter.includes('https') ? twitter : `https://twitter.com/${twitter}`} target="_blank" className='Profile__view-text'>
                 <img
                   className='Profile__view-text-icon'
                   src='/socials/twitter.png'
@@ -78,7 +78,7 @@ export const ViewUserInformation = (): JSX.Element => {
                 <div className='Profile__view-text-value'>{ twitter }</div>
               </a>}
 
-              { github && <a href={`https://github.com/${github}`} target="_blank" className='Profile__view-text'>
+              { github && <a href={github.includes('https') ? github : `https://github.com/${github}`} target="_blank" className='Profile__view-text'>
                 <img
                   className='Profile__view-text-icon'
                   src='/socials/github.png'
@@ -86,21 +86,21 @@ export const ViewUserInformation = (): JSX.Element => {
                 <div className='Profile__view-text-value'>{ github }</div>
               </a>}
 
-              { discord && <div className='Profile__view-text'>
+              { discord && <a href={discord.includes('https') ? discord : `https://discordapp.com/users/${discord}`} target="_blank" className='Profile__view-text'>
                 <img
                   className='Profile__view-text-icon'
                   src='/socials/discord.png'
                 ></img>
                 <div className='Profile__view-text-value'>{ discord }</div>
-              </div>}
+              </a>}
 
-              { telegram && <div className='Profile__view-text'>
+              { telegram && <a href={telegram.includes('https') ? telegram : `https://t.me/${telegram.includes('@') ? telegram : '@'+telegram }`} target="_blank" className='Profile__view-text'>
                 <img
                   className='Profile__view-text-icon'
                   src='/socials/telegram.png'
                 ></img>
                 <div className='Profile__view-text-value'>{ telegram }</div>
-              </div>}
+              </a>}
             </div>
           </div>
         </div>
