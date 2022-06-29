@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { getParsedNftAccountsByOwner } from '@nfteyez/sol-rayz';
 import { Link, Navigate } from 'react-router-dom';
@@ -13,7 +13,6 @@ import { NftData, MetaData } from '../Models/nft';
 import axios from 'axios';
 import { chunkItems } from '../utils/promises';
 import { MDInput, MDDropdownSearch, MDSwitch } from '../design';
-import { CONSTANTS } from '../constants';
 
 export const UserInformation = (): JSX.Element => {
   const wallet = useWallet();
@@ -38,7 +37,7 @@ export const UserInformation = (): JSX.Element => {
           publicAddress: walletId,
           connection
         });
-        nftResult = nftResult.filter(x => x.updateAuthority == process.env.REACT_APP_NFT_UA);
+        nftResult = nftResult.filter(x => x.updateAuthority === process.env.REACT_APP_NFT_UA);
         const nftChunks = chunkItems(nftResult);
         for (const chunk of nftChunks) {
           await Promise.all(
@@ -54,7 +53,7 @@ export const UserInformation = (): JSX.Element => {
       setNftArrayLoading(false);
       setNftArray(nftResult);
     }
-  }, [walletId]);
+  }, [walletId, connection]);
 
   // const state = {matches: (s: any) => Boolean, value: '', context: {lat: 0, lng: 0}};
   // const send = (s: string, a?: any) => {}
@@ -160,6 +159,7 @@ export const UserInformation = (): JSX.Element => {
                             >
                               <img
                                 className='nft_gallery_img'
+                                alt='smb'
                                 src={x.imageUri}
                                 onClick={()=> send({ type: 'SELECT_MONK', nft: {id: x.mint, imageUri: x.imageUri, monkeNo: x.nftNumber } })}
                               ></img>
