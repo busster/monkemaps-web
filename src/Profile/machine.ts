@@ -5,7 +5,7 @@ import { CONSTANTS } from "../constants";
 import { mapService } from "../Map/machine";
 import { WalletContextState, useConnection, ConnectionContextState } from "@solana/wallet-adapter-react";
 import { Connection, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
-
+import { toast } from 'react-toastify';
 const bs58 = require('bs58');
 
 const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 20);
@@ -105,58 +105,72 @@ const createUserContext = (wallet: WalletContextState | undefined, walletId: str
 
 const mapHeaders = async (context: UserContext) => {
   const { walletId, signMessage, sendTransaction, signTransaction, isHardware, connection } = context;
-  const message = `Sign this message for authenticating with your wallet. Nonce: ${walletId}`;
-  const conn = connection as Connection;
-  if (isHardware) {
-    const response = await fetch(`${CONSTANTS.API_URL.replace('monkemaps', '')}auth`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({walletId, message: btoa(message)})
+  try {
+
+
+    toast.info('Logging you in...', {
+      position: toast.POSITION.TOP_CENTER,
+      autoClose: 2500
     });
-  
-    const res = await response.json();
-    const latestBlockHash = await conn.getLatestBlockhash();
-    const walletPk = new PublicKey(walletId);
-    const transaction = new Transaction();
-    transaction.feePayer = walletPk;
-    transaction.recentBlockhash = latestBlockHash.blockhash;
-    transaction.add(SystemProgram.transfer({
-      fromPubkey: walletPk,
-      toPubkey: new PublicKey(res.destination),
-      lamports: res.lamports,
-    }));
-    const signedTxn = await signTransaction(transaction);
-    const txnSerialized = signedTxn.serialize();
-    const signature = await conn.sendRawTransaction(txnSerialized, { skipPreflight: true } );
-    await conn.confirmTransaction({
-      blockhash: latestBlockHash.blockhash,
-      lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-      signature,
-    }, 'confirmed');
-    return {
-      'x-auth-txn': signature,
-      'x-auth-nonce': walletId,
-      'x-auth-message': btoa(message),
-      'x-auth-signed': res.token,
-      'x-auth-pk': walletId,
+    const message = `Sign this message for authenticating with your wallet. Nonce: ${walletId}`;
+    const conn = connection as Connection;
+    if (isHardware) {
+      const response = await fetch(`${CONSTANTS.API_URL.replace('monkemaps', '')}auth`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ walletId, message: btoa(message) })
+      });
+
+      const res = await response.json();
+      const latestBlockHash = await conn.getLatestBlockhash();
+      const walletPk = new PublicKey(walletId);
+      const transaction = new Transaction();
+      transaction.feePayer = walletPk;
+      transaction.recentBlockhash = latestBlockHash.blockhash;
+      transaction.add(SystemProgram.transfer({
+        fromPubkey: walletPk,
+        toPubkey: new PublicKey(res.destination),
+        lamports: res.lamports,
+      }));
+      const signedTxn = await signTransaction(transaction);
+      const txnSerialized = signedTxn.serialize();
+      const signature = await conn.sendRawTransaction(txnSerialized, { skipPreflight: true });
+      await conn.confirmTransaction({
+        blockhash: latestBlockHash.blockhash,
+        lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+        signature,
+      }, 'confirmed');
+      return {
+        'x-auth-txn': signature,
+        'x-auth-nonce': walletId,
+        'x-auth-message': btoa(message),
+        'x-auth-signed': res.token,
+        'x-auth-pk': walletId,
+      }
+    }
+    else {
+      const encodedMessage = new TextEncoder().encode(message);
+      if (!walletId) throw new Error("Wallet not connected!");
+      if (!signMessage) throw new Error("Wallet does not support message signing!");
+      const signedMessage = await signMessage(encodedMessage);
+      const signedAndEncodedMessage = bs58.encode(signedMessage);
+      return {
+        'x-auth-txn': '',
+        'x-auth-nonce': walletId,
+        'x-auth-message': btoa(message),
+        'x-auth-signed': signedAndEncodedMessage,
+        'x-auth-pk': walletId,
+      }
     }
   }
-  else {
-    const encodedMessage = new TextEncoder().encode(message);
-    if (!walletId) throw new Error("Wallet not connected!");
-    if (!signMessage) throw new Error("Wallet does not support message signing!");
-    const signedMessage = await signMessage(encodedMessage);
-    const signedAndEncodedMessage = bs58.encode(signedMessage);
-    return {
-      'x-auth-txn': '',
-      'x-auth-nonce': walletId,
-      'x-auth-message': btoa(message),
-      'x-auth-signed': signedAndEncodedMessage,
-      'x-auth-pk': walletId,
-    }
+  catch (err) {
+    toast.error('Failed to login.', {
+      position: toast.POSITION.TOP_CENTER
+    });
+    return Promise.reject(err);
   }
 };
 
@@ -234,8 +248,17 @@ const createUser = async (context: UserContext) => {
   });
 
   if (response.ok) {
+    toast.success('Created successfully!',
+    {
+      position: toast.POSITION.TOP_CENTER,
+      autoClose: 2500
+    });
     return Promise.resolve();
   } else {
+    toast.error('Failed to create user.',
+    {
+      position: toast.POSITION.TOP_CENTER
+    });
     return Promise.reject({ status: response.status });
   }
 }
@@ -266,8 +289,17 @@ const updateUser = async (context: UserContext) => {
   });
 
   if (response.ok) {
+    toast.success('Updated successfully!',
+    {
+      position: toast.POSITION.TOP_CENTER,
+      autoClose: 2500
+    });
     return Promise.resolve();
   } else {
+    toast.error('Update failed! Please try again.',
+    {
+      position: toast.POSITION.TOP_CENTER,
+    });
     return Promise.reject({ status: response.status });
   }
 }
@@ -281,8 +313,15 @@ const deleteUser = async (context: UserContext) => {
   });
 
   if (response.ok) {
+    toast.warn('Deleted successfully!', {
+      position: toast.POSITION.TOP_CENTER,
+      autoClose: 2500
+    });
     return Promise.resolve();
   } else {
+    toast.error('Deletion failed. Please try again', {
+      position: toast.POSITION.TOP_CENTER,
+    });
     return Promise.reject({ status: response.status });
   }
 }
