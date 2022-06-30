@@ -165,7 +165,8 @@ const mapHeaders = async (context: UserContext) => {
       }
     }
   }
-  catch (err) {
+  catch (err: any) {
+    console.log('ERROR >>>', err, err?.message);
     toast.error('Failed to login.', {
       position: toast.POSITION.TOP_CENTER
     });
