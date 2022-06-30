@@ -106,8 +106,6 @@ const createUserContext = (wallet: WalletContextState | undefined, walletId: str
 const mapHeaders = async (context: UserContext) => {
   const { walletId, signMessage, sendTransaction, signTransaction, isHardware, connection } = context;
   try {
-
-
     toast.info('Logging you in...', {
       position: toast.POSITION.TOP_CENTER,
       autoClose: 2500
@@ -115,7 +113,8 @@ const mapHeaders = async (context: UserContext) => {
     const message = `Sign this message for authenticating with your wallet. Nonce: ${walletId}`;
     const conn = connection as Connection;
     if (isHardware) {
-      const response = await fetch(`${CONSTANTS.API_URL.replace('monkemaps', '')}auth`, {
+      //hardcode for now
+      const response = await fetch(`https://api.monkemaps.com/auth`, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
