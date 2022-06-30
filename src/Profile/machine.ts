@@ -657,7 +657,7 @@ export const createUserMachine = ({ wallet, connection, walletId }: { wallet?: W
         nft: (context, event: any) => ({
           id: event.data.monkeId || '',
           imageUri: event.data.image ?? '',
-          monkeNo: event.data.monkeNo ?? ''
+          monkeNo: (event.data?.monkeNo ?? event.data?.monkeNumber) ?? ''
         })
       }),
       setNft: assign({
