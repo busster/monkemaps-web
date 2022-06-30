@@ -117,7 +117,7 @@ export const UserMarker = ({ user, handleOnclick, handleOnmouseenter, handleOnmo
 
   const icon = document.createElement('img');
   let src = '';
-  if (user.monkeNumber) {
+  if (user.monkeNumber && user.monkeNumber !== "") {
     src = `/Monke_No_Bg/${user.monkeNumber}.png`;
     root.className = 'Map-Marker Map-Marker--nft';
   } else {
