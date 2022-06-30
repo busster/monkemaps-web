@@ -24,6 +24,8 @@ import './components.css';
 import { AppNavBar } from './AppNav/navbar';
 import { AppRoutes } from './AppRoutes/routes';
 import { ViewportProvider } from './utils/viewport';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const App = () => {
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
@@ -58,6 +60,7 @@ export const App = () => {
               <div>
                 <AppNavBar />
                 <AppRoutes />
+                <ToastContainer />
               </div>
             </HashRouter>
           </WalletModalProvider>
