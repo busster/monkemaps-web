@@ -55,7 +55,7 @@ type UserContext = {
   connection: any,
 };
 
-type CONNECT_EVENT = { type: 'CONNECT', wallet: WalletContextState };
+type CONNECT_EVENT = { type: 'CONNECT', wallet: WalletContextState, connection: Connection };
 type SELECT_MONK_EVENT = { type: 'SELECT_MONK', nft: NFT };
 type INPUT_LOCATION_EVENT = { type: 'INPUT_LOCATION', location: Location };
 type INPUT_NICK_NAME_EVENT = { type: 'INPUT_NICK_NAME', nickName: string };
@@ -640,6 +640,7 @@ export const createUserMachine = ({ wallet, connection, walletId }: { wallet?: W
         signMessage: (context, event) => (event as CONNECT_EVENT).wallet.signMessage,
         signTransaction: (context, event) => (event as CONNECT_EVENT).wallet.signTransaction,
         sendTransaction: (context, event) => (event as CONNECT_EVENT).wallet.sendTransaction,
+        connection: (context, event) => (event as CONNECT_EVENT).connection,
       }),
       setUser: assign({
         nickName: (context, event: any) => event.data.nickName,

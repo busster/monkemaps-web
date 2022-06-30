@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useMemo } from 'react';
-import { ConnectionProvider, useWallet, WalletProvider } from '@solana/wallet-adapter-react';
+import { ConnectionProvider, useWallet, WalletProvider, useConnection } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
   GlowWalletAdapter,
@@ -31,6 +31,7 @@ import { UserMachine } from '../Profile/machine';
 
 export const AppNavBar = () => {
   const wallet = useWallet();
+  const { connection } = useConnection();
   const { publicKey } = wallet;
 
   useEffect(() => {
@@ -41,8 +42,8 @@ export const AppNavBar = () => {
     }
 
     const service = UserMachine.get({ wallet });
-    service.send('CONNECT', { wallet });
-  }, [publicKey]);
+    service.send('CONNECT', { wallet, connection });
+  }, [publicKey, connection]);
 
   return (
     <nav className='App__nav'>
