@@ -11,7 +11,7 @@
   background-color: var(--colors_white);
   box-sizing: border-box; */
   /* padding: 0.75rem; */
-  
+
   /* cursor: pointer; */
 }
 .Profile__back-icon {
@@ -68,7 +68,6 @@
   color: var(--colors_light-red);
 }
 
-
 .Profile__location-switch {
   display: flex;
 }
@@ -81,7 +80,6 @@
 }
 
 .Profile__form {
-
 }
 .Profile__form > * {
   margin-bottom: 1rem;
@@ -97,7 +95,7 @@
   margin: 1rem;
   display: flex;
 }
-.Profile__actions > *:nth-child(n+2) {
+.Profile__actions > *:nth-child(n + 2) {
   margin-left: 1rem;
 }
 
@@ -119,7 +117,7 @@
   height: var(--sizing_nft-size);
   width: var(--sizing_nft-size);
   cursor: pointer;
-  opacity: .65;
+  opacity: 0.65;
   border: 1px solid var(--colors_white);
   box-sizing: border-box;
   transition: all 250ms ease;

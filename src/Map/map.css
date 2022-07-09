@@ -58,7 +58,7 @@
 
 .Map-Wrapper__view {
   /* background-color: var(--colors_light-yellow); */
-  height: calc(100vh  - var(--sizing_nav-height));
+  height: calc(100vh - var(--sizing_nav-height));
   width: 70%;
   overflow: hidden;
 }
@@ -77,7 +77,7 @@
     align-items: center;
     justify-content: center;
   }
-  
+
   .Map-Wrapper__view {
     width: 100%;
     position: absolute;

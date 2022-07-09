@@ -60,9 +60,8 @@
 .Map-Location-Details-link-icon {
   height: 15px;
   width: 15px;
-  margin-left: .25rem;
-  margin-right: .25rem;
-
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
 }
 .Map-Location-Details-link:hover {
   color: var(--colors_green);

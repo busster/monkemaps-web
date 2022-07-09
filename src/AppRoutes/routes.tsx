@@ -1,12 +1,8 @@
-import React from 'react';
-import {
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import React from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
 
-import { MapWrapper, Map, LocationDetails } from '../Map';
-import { UserInformation, ViewUserInformation } from '../Profile';
+import { MapWrapper, Map, LocationDetails } from '../Map'
+import { UserInformation, ViewUserInformation } from '../Profile'
 
 export const AppRoutes = () => {
   return (
@@ -17,7 +13,7 @@ export const AppRoutes = () => {
         <Route path=":locationId" element={<LocationDetails />} />
       </Route>
       <Route path="/monke/:monkeId" element={<ViewUserInformation />} />
-      <Route path="*" element={<Navigate to='/map'></Navigate>} />
+      <Route path="*" element={<Navigate to="/map"></Navigate>} />
     </Routes>
-  );
+  )
 }

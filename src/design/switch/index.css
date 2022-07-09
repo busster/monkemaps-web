@@ -6,7 +6,7 @@
   font-variant: tabular-nums;
   line-height: 1.5715;
   list-style: none;
-  font-feature-settings: "tnum";
+  font-feature-settings: 'tnum';
   position: relative;
   display: inline-block;
   box-sizing: border-box;
@@ -14,11 +14,16 @@
   height: 22px;
   line-height: 22px;
   vertical-align: middle;
-  background-image: linear-gradient(to right,rgba(0,0,0,.25),rgba(0,0,0,.25)),linear-gradient(to right,#fff,#fff);
+  background-image: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.25),
+      rgba(0, 0, 0, 0.25)
+    ),
+    linear-gradient(to right, #fff, #fff);
   border: 0;
   border-radius: 100px;
   cursor: pointer;
-  transition: all .2s;
+  transition: all 0.2s;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -36,7 +41,7 @@
   left: 2px;
   width: 18px;
   height: 18px;
-  transition: all .2s ease-in-out;
+  transition: all 0.2s ease-in-out;
 }
 .md-switch-handle:before {
   position: absolute;
@@ -44,6 +49,6 @@
   background-color: #fff;
   border-radius: 9px;
   box-shadow: 0 2px 4px #00230b33;
-  transition: all .2s ease-in-out;
-  content: "";
+  transition: all 0.2s ease-in-out;
+  content: '';
 }

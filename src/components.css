@@ -14,10 +14,11 @@
 .button:hover:enabled {
   background-color: var(--colors_light-grey);
 }
-.button:disabled, button[disabled] {
+.button:disabled,
+button[disabled] {
   background-color: var(--colors_light-grey);
   border-color: var(--colors_light-grey);
-  opacity: .75;
+  opacity: 0.75;
   cursor: default;
 }
 

@@ -46,7 +46,8 @@
 .Map-Marker__text {
   margin-bottom: 0.5rem;
 }
-.Map-Marker__date {}
+.Map-Marker__date {
+}
 
 .Map-Marker__cluster {
   border-radius: 50%;

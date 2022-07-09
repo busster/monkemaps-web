@@ -25,7 +25,7 @@
 .App__nav-link-logo {
   height: var(--sizing_icon-height);
   width: var(--sizing_icon-height);
-  margin-right: .25rem;
+  margin-right: 0.25rem;
 }
 .App__nav-link:hover {
   color: var(--colors_green);
@@ -66,19 +66,19 @@
   overflow: hidden;
   display: inline-block;
   vertical-align: bottom;
-  -webkit-animation: ellipsis steps(4,end) 900ms infinite;      
-  animation: ellipsis steps(4,end) 900ms infinite;
-  content: "\2026"; /* ascii code for the ellipsis character */
+  -webkit-animation: ellipsis steps(4, end) 900ms infinite;
+  animation: ellipsis steps(4, end) 900ms infinite;
+  content: '\2026'; /* ascii code for the ellipsis character */
   width: 0px;
 }
 @keyframes ellipsis {
   to {
-    width: 20px;    
+    width: 20px;
   }
 }
 
 @-webkit-keyframes ellipsis {
   to {
-    width: 20px;    
+    width: 20px;
   }
 }

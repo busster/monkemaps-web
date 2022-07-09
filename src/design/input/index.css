@@ -16,7 +16,7 @@
   margin: 0;
   font-variant: tabular-nums;
   list-style: none;
-  font-feature-settings: "tnum";
+  font-feature-settings: 'tnum';
   position: relative;
   display: inline-block;
   width: 100%;
@@ -28,7 +28,7 @@
   background-image: none;
   border: 1px solid var(--colors_light-grey);
   border-radius: 2px;
-  transition: all .3s;
+  transition: all 0.3s;
 }
 .md-input:hover {
   border-color: var(--colors_light-blue);

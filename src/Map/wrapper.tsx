@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import React, { useState } from 'react'
+import { Link, Outlet } from 'react-router-dom'
 
-import './wrapper.css';
+import './wrapper.css'
 
 export const MapWrapper: React.FunctionComponent = (): JSX.Element => {
-  return (
-    <Outlet />
-  );
+  return <Outlet />
 }

@@ -1,26 +1,31 @@
 @font-face {
-  font-family:"Space Grotesk Bold Bold";
-  src:url("https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/225848325007.woff") format("woff");
+  font-family: 'Space Grotesk Bold Bold';
+  src: url('https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/225848325007.woff')
+    format('woff');
 }
 
 @font-face {
-  font-family:"Space Grotesk Light";
-  src:url("https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/727795931178.woff") format("woff");
+  font-family: 'Space Grotesk Light';
+  src: url('https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/727795931178.woff')
+    format('woff');
 }
 
 @font-face {
-  font-family:"Space Grotesk Medium";
-  src:url("https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/16157407014.woff") format("woff");
+  font-family: 'Space Grotesk Medium';
+  src: url('https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/16157407014.woff')
+    format('woff');
 }
 
 @font-face {
-  font-family:"Space Grotesk Regular";
-  src:url("https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/136610924011.woff") format("woff");
+  font-family: 'Space Grotesk Regular';
+  src: url('https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/136610924011.woff')
+    format('woff');
 }
 
 @font-face {
-  font-family:"Space Grotesk SemiBold";
-  src:url("https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/849944900469.woff") format("woff");
+  font-family: 'Space Grotesk SemiBold';
+  src: url('https://d1w6lbg49kat6u.cloudfront.net/lINWXBz25YoxC2388VagLN1EbTHPQxjj/849944900469.woff')
+    format('woff');
 }
 
 html {
