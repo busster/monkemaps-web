@@ -27,10 +27,12 @@ import '@solana/wallet-adapter-react-ui/styles.css'
 import '../App.css'
 import { useActor } from '@xstate/react'
 import { UserMachine } from '../Profile/machine'
+import { getToken } from '../utils/tokenUtils';
 
 export const AppNavBar = () => {
   const wallet = useWallet()
   const { connection } = useConnection()
+  const token = getToken();
   const { publicKey } = wallet
 
   useEffect(() => {

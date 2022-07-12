@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC, useMemo, useState } from 'react'
 import {
   ConnectionProvider,
   useWallet,
@@ -26,6 +26,8 @@ import { AppRoutes } from './AppRoutes/routes'
 import { ViewportProvider } from './utils/viewport'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { Login } from './Login/auth'
+import useToken from './Hooks/useToken'
 
 export const App = () => {
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
@@ -52,19 +54,24 @@ export const App = () => {
     ],
     [network],
   )
+  const { token, setToken } = useToken()
 
   return (
     <ViewportProvider>
       <ConnectionProvider endpoint={endpoint}>
         <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider>
-            <HashRouter>
-              <div>
-                <AppNavBar />
-                <AppRoutes />
-                <ToastContainer />
-              </div>
-            </HashRouter>
+            {!token?.token ? (
+              <Login setToken={setToken} />
+            ) : (
+              <HashRouter>
+                <div>
+                  <AppNavBar />
+                  <AppRoutes />
+                </div>
+              </HashRouter>
+            )}
+            <ToastContainer />
           </WalletModalProvider>
         </WalletProvider>
       </ConnectionProvider>

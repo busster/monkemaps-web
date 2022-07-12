@@ -12,6 +12,7 @@ import { customAlphabet } from 'nanoid'
 import { DateTime } from 'luxon'
 
 import { CONSTANTS } from '../constants'
+import  { getToken } from '../utils/tokenUtils';
 
 const nanoid = customAlphabet(
   '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -86,9 +87,16 @@ type MapEvents =
   | { type: 'RELOAD' }
 
 const fetchEvents = async () => {
+  const token = getToken();
   const response = await fetch(`${CONSTANTS.API_URL}/events`, {
     method: 'GET',
-  })
+    headers: {
+      'x-auth-token': token?.token,
+      'x-auth-txn': token?.txn,
+      'x-auth-hw': token?.hw,
+
+    }
+  });
 
   const res = await response.json()
   // console.log(res);
@@ -101,8 +109,15 @@ const fetchEvents = async () => {
 }
 
 const fetchUsers = async () => {
+  const token = getToken();
   const response = await fetch(`${CONSTANTS.API_URL}/users`, {
     method: 'GET',
+    headers: {
+      'x-auth-token': token?.token,
+      'x-auth-txn': token?.txn,
+      'x-auth-hw': token?.hw,
+
+    }
   })
 
   const res = await response.json()

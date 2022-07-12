@@ -28,6 +28,8 @@ import {
   Transaction,
 } from '@solana/web3.js'
 import { toast } from 'react-toastify'
+import  { getToken, clearToken } from '../utils/tokenUtils';
+
 const bs58 = require('bs58')
 
 const nanoid = customAlphabet(
@@ -231,10 +233,17 @@ const mapHeaders = async (context: UserContext) => {
 }
 
 const fetchUser = async (context: UserContext) => {
+  const token = getToken();
   const response = await fetch(
     `${CONSTANTS.API_URL}/users/${context.walletId}`,
     {
       method: 'GET',
+      headers: {
+        'x-auth-token': token?.token,
+        'x-auth-txn': token?.txn,
+        'x-auth-hw': token?.hw,
+  
+      }
     },
   )
 
@@ -286,11 +295,14 @@ const findLocation = (
 }
 
 const createUser = async (context: UserContext) => {
+  const token = getToken();
   const response = await fetch(`${CONSTANTS.API_URL}/users`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(await mapHeaders(context)),
+      'x-auth-token': token?.token,
+      'x-auth-txn': token?.txn,
+      'x-auth-hw': token?.hw,
     },
     body: JSON.stringify({
       walletId: context.walletId,
@@ -325,13 +337,16 @@ const createUser = async (context: UserContext) => {
 }
 
 const updateUser = async (context: UserContext) => {
+  const token = getToken();
   const response = await fetch(
     `${CONSTANTS.API_URL}/users/${context.walletId}`,
     {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        ...(await mapHeaders(context)),
+        'x-auth-token': token?.token,
+        'x-auth-txn': token?.txn,
+        'x-auth-hw': token?.hw,
       },
       body: JSON.stringify({
         walletId: context.walletId,
@@ -367,12 +382,15 @@ const updateUser = async (context: UserContext) => {
 }
 
 const deleteUser = async (context: UserContext) => {
+  const token = getToken();
   const response = await fetch(
     `${CONSTANTS.API_URL}/users/${context.walletId}`,
     {
       method: 'DELETE',
       headers: {
-        ...(await mapHeaders(context)),
+        'x-auth-token': token?.token,
+        'x-auth-txn': token?.txn,
+        'x-auth-hw': token?.hw,
       },
     },
   )
