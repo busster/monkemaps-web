@@ -21,6 +21,13 @@ import '@solana/wallet-adapter-react-ui/styles.css'
 import './App.css'
 import './components.css'
 
+import {
+  ThemeProvider,
+  theme,
+  ColorModeProvider,
+  CSSReset,
+} from '@chakra-ui/react'
+
 import { AppNavBar } from './AppNav/navbar'
 import { AppRoutes } from './AppRoutes/routes'
 import { ViewportProvider } from './utils/viewport'
@@ -54,21 +61,26 @@ export const App = () => {
   )
 
   return (
-    <ViewportProvider>
-      <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect>
-          <WalletModalProvider>
-            <HashRouter>
-              <div>
-                <AppNavBar />
-                <AppRoutes />
-                <ToastContainer />
-              </div>
-            </HashRouter>
-          </WalletModalProvider>
-        </WalletProvider>
-      </ConnectionProvider>
-    </ViewportProvider>
+    <ThemeProvider theme={theme}>
+      <ColorModeProvider>
+        <CSSReset />
+        <ViewportProvider>
+          <ConnectionProvider endpoint={endpoint}>
+            <WalletProvider wallets={wallets} autoConnect>
+              <WalletModalProvider>
+                <HashRouter>
+                  <div>
+                    <AppNavBar />
+                    <AppRoutes />
+                    <ToastContainer />
+                  </div>
+                </HashRouter>
+              </WalletModalProvider>
+            </WalletProvider>
+          </ConnectionProvider>
+        </ViewportProvider>
+      </ColorModeProvider>
+    </ThemeProvider>
   )
 }
 

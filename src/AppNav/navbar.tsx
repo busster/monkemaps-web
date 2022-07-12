@@ -27,6 +27,7 @@ import '@solana/wallet-adapter-react-ui/styles.css'
 import '../App.css'
 import { useActor } from '@xstate/react'
 import { UserMachine } from '../Profile/machine'
+import Toggle from '../design/toggle/toggle';
 
 export const AppNavBar = () => {
   const wallet = useWallet()
@@ -68,6 +69,7 @@ export const AppNavBar = () => {
         ) : (
           <WalletMultiButton />
         )}
+        <Toggle />
       </div>
     </nav>
   )
