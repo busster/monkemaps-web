@@ -13,7 +13,7 @@ import { NftData, MetaData } from '../Models/nft';
 import axios from 'axios';
 import { chunkItems } from '../utils/promises';
 import { MDInput, MDDropdownSearch, MDSwitch, MDCheckbox } from '../design';
-import { clearToken } from '../utils/tokenUtils';
+import { clearToken, getToken } from '../utils/tokenUtils';
 
 export const UserInformation = (): JSX.Element => {
   const { wallet, publicKey } = useWallet();
@@ -65,8 +65,10 @@ export const UserInformation = (): JSX.Element => {
   }, [walletId, connection]);
 
   wallet?.adapter?.addListener('disconnect', () => {
-    clearToken();
-    window.location.reload();
+    if (getToken()?.token) {
+      clearToken();
+      window.location.reload();
+    }
   });
 
   // const state = {matches: (s: any) => Boolean, value: '', context: {lat: 0, lng: 0}};

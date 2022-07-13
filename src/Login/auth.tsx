@@ -1,7 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { getParsedNftAccountsByOwner } from '@nfteyez/sol-rayz';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
 import {
   Connection,
   PublicKey,
@@ -10,20 +8,12 @@ import {
 } from '@solana/web3.js';
 import { toast } from 'react-toastify';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { NftData, MetaData } from '../Models/nft';
-import axios from 'axios';
-import { chunkItems } from '../utils/promises';
-import { MDInput, MDDropdownSearch, MDCheckbox } from '../design';
 import { CONSTANTS } from '../constants';
-import { connect } from 'http2';
-import { clearToken } from '../utils/tokenUtils';
+import { clearToken, getToken } from '../utils/tokenUtils';
 import {
   VStack,
   Checkbox,
-  Divider,
-  Container,
   Button,
-  Text,
   Heading,
   SimpleGrid,
   Box,
@@ -52,8 +42,10 @@ export const Login = (props: LoginProps): JSX.Element => {
   } = useWallet();
 
   wallet?.adapter?.addListener('disconnect', () => {
-    clearToken();
-    window.location.reload();
+    if (getToken()?.token) {
+      clearToken();
+      window.location.reload();
+    }
   });
 
   const { connection } = useConnection();
@@ -78,17 +70,14 @@ export const Login = (props: LoginProps): JSX.Element => {
           return Promise.reject();
         }
         //hardcode for now
-        const response = await fetch(
-          `https://api.monkemaps.com/monkemaps/auth/txn`,
-          {
-            method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ walletId, message: btoa(message) }),
+        const response = await fetch(`${CONSTANTS.API_URL}/auth/txn`, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
           },
-        );
+          body: JSON.stringify({ walletId, message: btoa(message) }),
+        });
 
         const res = await response.json();
         const latestBlockHash = await conn.getLatestBlockhash();
@@ -134,21 +123,18 @@ export const Login = (props: LoginProps): JSX.Element => {
           throw new Error('Wallet does not support message signing!');
         const signedMessage = await signMessage(encodedMessage);
         const signedAndEncodedMessage = bs58.encode(signedMessage);
-        const response = await fetch(
-          `https://api.monkemaps.com/monkemaps/auth/sign`,
-          {
-            method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              walletId,
-              message: btoa(message),
-              signedMsg: signedAndEncodedMessage,
-            }),
+        const response = await fetch(`${CONSTANTS.API_URL}/auth/sign`, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
           },
-        );
+          body: JSON.stringify({
+            walletId,
+            message: btoa(message),
+            signedMsg: signedAndEncodedMessage,
+          }),
+        });
         const tkn = await response.json();
         setToken({ token: tkn.token, hw: '' });
         if (tkn.token) {
