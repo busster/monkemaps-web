@@ -215,7 +215,7 @@ export const Login = (props: LoginProps): JSX.Element => {
             </Button>
           </Center>
         </Box>
-        <Box height="5px"/>
+        <Box height="5px" />
       </SimpleGrid>
     </VStack>
   )

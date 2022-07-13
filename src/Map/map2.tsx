@@ -18,7 +18,6 @@ import { LocationList } from './locationList'
 import { Rendered, Supercluster } from './supercluster'
 import { toast } from 'react-toastify'
 
-
 mapboxgl.accessToken =
   'pk.eyJ1IjoiamFzb25idXNzIiwiYSI6ImNsMnhxcWM3bzB5Y28zYnBmZGtrenhiZmMifQ.iNeJnRHRkvoKl5TnZvy8gg'
 

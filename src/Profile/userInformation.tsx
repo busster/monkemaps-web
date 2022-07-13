@@ -22,7 +22,9 @@ export const UserInformation = (): JSX.Element => {
   const [nftArrayLoading, setNftArrayLoading] = useState(true)
   const [nftArray, setNftArray] = useState<NftData[]>([])
   const walletId = publicKey?.toBase58()
-  const [state, send] = useActor(UserMachine.get({ wallet: walletContext, connection }))
+  const [state, send] = useActor(
+    UserMachine.get({ wallet: walletContext, connection }),
+  )
   console.log(state)
   useEffect(() => {
     let active = true
@@ -64,7 +66,7 @@ export const UserInformation = (): JSX.Element => {
 
   wallet?.adapter?.addListener('disconnect', () => {
     clearToken()
-    window.location.reload();
+    window.location.reload()
   })
 
   // const state = {matches: (s: any) => Boolean, value: '', context: {lat: 0, lng: 0}};
