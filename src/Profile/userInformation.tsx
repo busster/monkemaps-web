@@ -1,82 +1,82 @@
-import { useEffect, useState } from 'react'
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
-import { getParsedNftAccountsByOwner } from '@nfteyez/sol-rayz'
-import { Link, Navigate } from 'react-router-dom'
+import { useEffect, useState } from 'react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { getParsedNftAccountsByOwner } from '@nfteyez/sol-rayz';
+import { Link, Navigate } from 'react-router-dom';
 
-import { useWallet, useConnection } from '@solana/wallet-adapter-react'
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 
-import { useActor } from '@xstate/react'
-import { lookupPlaces, UserMachine } from './machine'
+import { useActor } from '@xstate/react';
+import { lookupPlaces, UserMachine } from './machine';
 
-import './userInformation.css'
-import { NftData, MetaData } from '../Models/nft'
-import axios from 'axios'
-import { chunkItems } from '../utils/promises'
-import { MDInput, MDDropdownSearch, MDSwitch, MDCheckbox } from '../design'
-import { clearToken } from '../utils/tokenUtils'
+import './userInformation.css';
+import { NftData, MetaData } from '../Models/nft';
+import axios from 'axios';
+import { chunkItems } from '../utils/promises';
+import { MDInput, MDDropdownSearch, MDSwitch, MDCheckbox } from '../design';
+import { clearToken } from '../utils/tokenUtils';
 
 export const UserInformation = (): JSX.Element => {
-  const { wallet, publicKey } = useWallet()
-  const walletContext = useWallet()
-  const { connection } = useConnection()
-  const [nftArrayLoading, setNftArrayLoading] = useState(true)
-  const [nftArray, setNftArray] = useState<NftData[]>([])
-  const walletId = publicKey?.toBase58()
+  const { wallet, publicKey } = useWallet();
+  const walletContext = useWallet();
+  const { connection } = useConnection();
+  const [nftArrayLoading, setNftArrayLoading] = useState(true);
+  const [nftArray, setNftArray] = useState<NftData[]>([]);
+  const walletId = publicKey?.toBase58();
   const [state, send] = useActor(
     UserMachine.get({ wallet: walletContext, connection }),
-  )
-  console.log(state)
+  );
+  console.log(state);
   useEffect(() => {
-    let active = true
-    load()
+    let active = true;
+    load();
     return () => {
-      active = false
-    }
+      active = false;
+    };
 
     async function load() {
-      setNftArray([])
-      let nftResult: NftData[] = []
+      setNftArray([]);
+      let nftResult: NftData[] = [];
       if (walletId) {
         nftResult = await getParsedNftAccountsByOwner({
           publicAddress: walletId,
           connection,
-        })
+        });
         nftResult = nftResult.filter(
           (x) => x.updateAuthority === process.env.REACT_APP_NFT_UA,
-        )
-        const nftChunks = chunkItems(nftResult)
+        );
+        const nftChunks = chunkItems(nftResult);
         for (const chunk of nftChunks) {
           await Promise.all(
             chunk.map(async (item, index) => {
-              const result = await axios.get<MetaData>(item.data.uri)
-              item.imageUri = result.data.image
-              const titleArray = result?.data?.name?.split('#')
-              item.nftNumber = titleArray ? `${titleArray[1]}` : ''
+              const result = await axios.get<MetaData>(item.data.uri);
+              item.imageUri = result.data.image;
+              const titleArray = result?.data?.name?.split('#');
+              item.nftNumber = titleArray ? `${titleArray[1]}` : '';
             }),
-          )
+          );
         }
       }
       if (!active) {
-        return
+        return;
       }
-      setNftArrayLoading(false)
-      setNftArray(nftResult)
+      setNftArrayLoading(false);
+      setNftArray(nftResult);
     }
-  }, [walletId, connection])
+  }, [walletId, connection]);
 
   wallet?.adapter?.addListener('disconnect', () => {
-    clearToken()
-    window.location.reload()
-  })
+    clearToken();
+    window.location.reload();
+  });
 
   // const state = {matches: (s: any) => Boolean, value: '', context: {lat: 0, lng: 0}};
   // const send = (s: string, a?: any) => {}
 
   useEffect(() => {
     if (!walletId) {
-      send('DISCONNECT')
+      send('DISCONNECT');
     }
-  }, [walletId])
+  }, [walletId]);
 
   const {
     nickName,
@@ -87,17 +87,17 @@ export const UserInformation = (): JSX.Element => {
     nft,
     location,
     isHardware,
-  } = state.context
+  } = state.context;
 
-  const monkeSelected = !!state.context.nft.id
+  const monkeSelected = !!state.context.nft.id;
   const monkeSelectionError =
-    ['edit.invalid', 'create.invalid'].some(state.matches) && !monkeSelected
+    ['edit.invalid', 'create.invalid'].some(state.matches) && !monkeSelected;
   const nickNameError =
     ['edit.invalid', 'create.invalid'].some(state.matches) &&
-    !state.context.nickName
+    !state.context.nickName;
 
   if (state.matches('none')) {
-    return <Navigate to="/map"></Navigate>
+    return <Navigate to="/map"></Navigate>;
   } else {
     return (
       <div className="Profile__container">
@@ -210,7 +210,7 @@ export const UserInformation = (): JSX.Element => {
                           type: 'INPUT_LOCATION_ENABLED',
                           enabled: checked,
                           targetState: JSON.stringify(state.value),
-                        })
+                        });
                       }
                     }}
                   />
@@ -324,6 +324,6 @@ export const UserInformation = (): JSX.Element => {
           </div>
         )}
       </div>
-    )
+    );
   }
-}
+};

@@ -1,32 +1,32 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
-import { getParsedNftAccountsByOwner } from '@nfteyez/sol-rayz'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { getParsedNftAccountsByOwner } from '@nfteyez/sol-rayz';
+import { Link, Navigate, useParams } from 'react-router-dom';
 
-import { useWallet, useConnection } from '@solana/wallet-adapter-react'
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 
-import { useMachine } from '@xstate/react'
-import { createUserMachine } from './machine'
+import { useMachine } from '@xstate/react';
+import { createUserMachine } from './machine';
 
-import './userInformation.css'
-import './viewUser.css'
-import { NftData, MetaData } from '../Models/nft'
-import axios from 'axios'
-import { chunkItems } from '../utils/promises'
-import { MDInput, MDDropdownSearch } from '../design'
-import { CONSTANTS } from '../constants'
+import './userInformation.css';
+import './viewUser.css';
+import { NftData, MetaData } from '../Models/nft';
+import axios from 'axios';
+import { chunkItems } from '../utils/promises';
+import { MDInput, MDDropdownSearch } from '../design';
+import { CONSTANTS } from '../constants';
 
 export const ViewUserInformation = (): JSX.Element => {
-  const { monkeId } = useParams()
-  const walletId = monkeId
+  const { monkeId } = useParams();
+  const walletId = monkeId;
 
-  const [state, send] = useMachine(() => createUserMachine({ walletId }))
+  const [state, send] = useMachine(() => createUserMachine({ walletId }));
 
   // const state = {matches: (s: any) => Boolean, value: '', context: {lat: 0, lng: 0}};
   // const send = (s: string, a?: any) => {}
 
   const { nickName, twitter, github, telegram, discord, nft, location } =
-    state.context
+    state.context;
 
   return (
     <div className="Profile__view-container">
@@ -142,5 +142,5 @@ export const ViewUserInformation = (): JSX.Element => {
 
       {/* <div>Icons made by <a href="https://www.flaticon.com/authors/pixel-perfect" title="Pixel perfect">Pixel perfect</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div><div>Icons made by <a href="https://www.flaticon.com/authors/md-tanvirul-haque" title="Md Tanvirul Haque">Md Tanvirul Haque</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div><div>Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div> */}
     </div>
-  )
-}
+  );
+};

@@ -11,31 +11,31 @@ import {
   TypegenDisabled,
   BaseActionObject,
   ServiceMap,
-} from 'xstate'
-import { customAlphabet } from 'nanoid'
+} from 'xstate';
+import { customAlphabet } from 'nanoid';
 
-import { CONSTANTS } from '../constants'
-import { mapService } from '../Map/machine'
+import { CONSTANTS } from '../constants';
+import { mapService } from '../Map/machine';
 import {
   WalletContextState,
   useConnection,
   ConnectionContextState,
-} from '@solana/wallet-adapter-react'
+} from '@solana/wallet-adapter-react';
 import {
   Connection,
   PublicKey,
   SystemProgram,
   Transaction,
-} from '@solana/web3.js'
-import { toast } from 'react-toastify'
-import { getToken, clearToken } from '../utils/tokenUtils'
+} from '@solana/web3.js';
+import { toast } from 'react-toastify';
+import { getToken, clearToken } from '../utils/tokenUtils';
 
-const bs58 = require('bs58')
+const bs58 = require('bs58');
 
 const nanoid = customAlphabet(
   '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
   20,
-)
+);
 
 export const lookupPlaces = async (searchTerm: string) => {
   const response = await fetch(
@@ -43,69 +43,69 @@ export const lookupPlaces = async (searchTerm: string) => {
     {
       method: 'GET',
     },
-  )
+  );
 
-  const res = await response.json()
+  const res = await response.json();
   const results = res.features.map((f: any) => ({
     id: f.id,
     text: f.place_name,
     coordinates: f.geometry.coordinates.reverse(),
-  }))
+  }));
   if (response.ok) {
-    return results
+    return results;
   } else {
-    return Promise.reject({ status: response.status })
+    return Promise.reject({ status: response.status });
   }
-}
+};
 
 type NFT = {
-  imageUri: string | undefined
-  id: string
-  monkeNo: string | undefined
-}
+  imageUri: string | undefined;
+  id: string;
+  monkeNo: string | undefined;
+};
 type Location = {
-  id: string
-  enabled: boolean
-  text: string
-  coordinates: [number, number]
-}
+  id: string;
+  enabled: boolean;
+  text: string;
+  coordinates: [number, number];
+};
 type UserContext = {
-  walletId: string
-  signMessage: any
-  signTransaction: any
-  sendTransaction: any
-  nickName: string
-  twitter: string
-  github: string
-  telegram: string
-  discord: string
-  nft: NFT
-  location: Location
-  isHardware: boolean
-  connection: any
-}
+  walletId: string;
+  signMessage: any;
+  signTransaction: any;
+  sendTransaction: any;
+  nickName: string;
+  twitter: string;
+  github: string;
+  telegram: string;
+  discord: string;
+  nft: NFT;
+  location: Location;
+  isHardware: boolean;
+  connection: any;
+};
 
 type CONNECT_EVENT = {
-  type: 'CONNECT'
-  wallet: WalletContextState
-  connection: Connection
-}
-type SELECT_MONK_EVENT = { type: 'SELECT_MONK'; nft: NFT }
-type INPUT_LOCATION_EVENT = { type: 'INPUT_LOCATION'; location: Location }
-type INPUT_NICK_NAME_EVENT = { type: 'INPUT_NICK_NAME'; nickName: string }
-type INPUT_TWITTER_EVENT = { type: 'INPUT_TWITTER'; twitter: string }
-type INPUT_GITHUB_EVENT = { type: 'INPUT_GITHUB'; github: string }
-type INPUT_TELEGRAM_EVENT = { type: 'INPUT_TELEGRAM'; telegram: string }
-type INPUT_DISCORD_EVENT = { type: 'INPUT_DISCORD'; discord: string }
+  type: 'CONNECT';
+  wallet: WalletContextState;
+  connection: Connection;
+};
+type SELECT_MONK_EVENT = { type: 'SELECT_MONK'; nft: NFT };
+type INPUT_LOCATION_EVENT = { type: 'INPUT_LOCATION'; location: Location };
+type INPUT_NICK_NAME_EVENT = { type: 'INPUT_NICK_NAME'; nickName: string };
+type INPUT_TWITTER_EVENT = { type: 'INPUT_TWITTER'; twitter: string };
+type INPUT_GITHUB_EVENT = { type: 'INPUT_GITHUB'; github: string };
+type INPUT_TELEGRAM_EVENT = { type: 'INPUT_TELEGRAM'; telegram: string };
+type INPUT_DISCORD_EVENT = { type: 'INPUT_DISCORD'; discord: string };
 type ENABLE_LOCATION_EVENT = {
-  type: 'INPUT_LOCATION_ENABLED'
-  enabled: boolean
-  targetState: string
-}
+  type: 'INPUT_LOCATION_ENABLED';
+  enabled: boolean;
+  targetState: string;
+};
 type IS_HARDWARE_WALLET_EVENT = {
-  type: 'IS_HARDWARE_WALLET'
-  isHardware: boolean
-}
+  type: 'IS_HARDWARE_WALLET';
+  isHardware: boolean;
+};
 type UserEvents =
   | { type: 'SAVE' }
   | { type: 'DELETE' }
@@ -120,7 +120,7 @@ type UserEvents =
   | INPUT_TELEGRAM_EVENT
   | INPUT_DISCORD_EVENT
   | ENABLE_LOCATION_EVENT
-  | IS_HARDWARE_WALLET_EVENT
+  | IS_HARDWARE_WALLET_EVENT;
 
 const createUserContext = (
   wallet: WalletContextState | undefined,
@@ -145,8 +145,8 @@ const createUserContext = (
       coordinates: [0, 0],
     },
     isHardware: false,
-  })
-}
+  });
+};
 
 const mapHeaders = async (context: UserContext) => {
   const {
@@ -156,14 +156,14 @@ const mapHeaders = async (context: UserContext) => {
     signTransaction,
     isHardware,
     connection,
-  } = context
+  } = context;
   try {
     toast.info('Logging you in...', {
       position: toast.POSITION.TOP_CENTER,
       autoClose: 2500,
-    })
-    const message = `Sign this message for authenticating with your wallet. Nonce: ${walletId}`
-    const conn = connection as Connection
+    });
+    const message = `Sign this message for authenticating with your wallet. Nonce: ${walletId}`;
+    const conn = connection as Connection;
     if (isHardware) {
       //hardcode for now
       const response = await fetch(`https://api.monkemaps.com/auth`, {
@@ -173,26 +173,26 @@ const mapHeaders = async (context: UserContext) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ walletId, message: btoa(message) }),
-      })
+      });
 
-      const res = await response.json()
-      const latestBlockHash = await conn.getLatestBlockhash()
-      const walletPk = new PublicKey(walletId)
-      const transaction = new Transaction()
-      transaction.feePayer = walletPk
-      transaction.recentBlockhash = latestBlockHash.blockhash
+      const res = await response.json();
+      const latestBlockHash = await conn.getLatestBlockhash();
+      const walletPk = new PublicKey(walletId);
+      const transaction = new Transaction();
+      transaction.feePayer = walletPk;
+      transaction.recentBlockhash = latestBlockHash.blockhash;
       transaction.add(
         SystemProgram.transfer({
           fromPubkey: walletPk,
           toPubkey: new PublicKey(res.destination),
           lamports: res.lamports,
         }),
-      )
-      const signedTxn = await signTransaction(transaction)
-      const txnSerialized = signedTxn.serialize()
+      );
+      const signedTxn = await signTransaction(transaction);
+      const txnSerialized = signedTxn.serialize();
       const signature = await conn.sendRawTransaction(txnSerialized, {
         skipPreflight: true,
-      })
+      });
       await conn.confirmTransaction(
         {
           blockhash: latestBlockHash.blockhash,
@@ -200,40 +200,40 @@ const mapHeaders = async (context: UserContext) => {
           signature,
         },
         'confirmed',
-      )
+      );
       return {
         'x-auth-txn': signature,
         'x-auth-nonce': walletId,
         'x-auth-message': btoa(message),
         'x-auth-signed': res.token,
         'x-auth-pk': walletId,
-      }
+      };
     } else {
-      const encodedMessage = new TextEncoder().encode(message)
-      if (!walletId) throw new Error('Wallet not connected!')
+      const encodedMessage = new TextEncoder().encode(message);
+      if (!walletId) throw new Error('Wallet not connected!');
       if (!signMessage)
-        throw new Error('Wallet does not support message signing!')
-      const signedMessage = await signMessage(encodedMessage)
-      const signedAndEncodedMessage = bs58.encode(signedMessage)
+        throw new Error('Wallet does not support message signing!');
+      const signedMessage = await signMessage(encodedMessage);
+      const signedAndEncodedMessage = bs58.encode(signedMessage);
       return {
         'x-auth-txn': '',
         'x-auth-nonce': walletId,
         'x-auth-message': btoa(message),
         'x-auth-signed': signedAndEncodedMessage,
         'x-auth-pk': walletId,
-      }
+      };
     }
   } catch (err: any) {
-    console.log('ERROR >>>', err, err?.message)
+    console.log('ERROR >>>', err, err?.message);
     toast.error('Failed to login.', {
       position: toast.POSITION.TOP_CENTER,
-    })
-    return Promise.reject(err)
+    });
+    return Promise.reject(err);
   }
-}
+};
 
 const fetchUser = async (context: UserContext) => {
-  const token = getToken()
+  const token = getToken();
   const response = await fetch(
     `${CONSTANTS.API_URL}/users/${context.walletId}`,
     {
@@ -244,15 +244,15 @@ const fetchUser = async (context: UserContext) => {
         'x-auth-hw': token?.hw,
       },
     },
-  )
+  );
 
-  const res = await response.json()
+  const res = await response.json();
   if (response.ok) {
-    return res
+    return res;
   } else {
-    return Promise.reject({ status: response.status })
+    return Promise.reject({ status: response.status });
   }
-}
+};
 
 const findLocation = (
   event: ENABLE_LOCATION_EVENT,
@@ -262,22 +262,22 @@ const findLocation = (
     enabled: true,
     text: '',
     coordinates: [0, 0],
-  } as Location
+  } as Location;
 
   return new Promise((resolve, reject) => {
     const error = (e: any) => {
-      resolve({ location: defaultLocation, targetState: event.targetState })
-    }
+      resolve({ location: defaultLocation, targetState: event.targetState });
+    };
 
     const success = (position: any) => {
-      const { latitude, longitude } = position.coords
+      const { latitude, longitude } = position.coords;
 
       lookupPlaces(`${longitude},${latitude}`)
         .then((places: any) => {
           if (!places || places.length === 0) {
-            error(null)
+            error(null);
           }
-          const place = places[0]
+          const place = places[0];
           resolve({
             location: {
               ...place,
@@ -285,16 +285,16 @@ const findLocation = (
               coordinates: [latitude, longitude],
             },
             targetState: event.targetState,
-          })
+          });
         })
-        .catch(error)
-    }
-    navigator.geolocation.getCurrentPosition(success, error)
-  })
-}
+        .catch(error);
+    };
+    navigator.geolocation.getCurrentPosition(success, error);
+  });
+};
 
 const createUser = async (context: UserContext) => {
-  const token = getToken()
+  const token = getToken();
   const response = await fetch(`${CONSTANTS.API_URL}/users`, {
     method: 'POST',
     headers: {
@@ -319,24 +319,24 @@ const createUser = async (context: UserContext) => {
       monkeId: context.nft.id,
       monkeNumber: context.nft.monkeNo,
     }),
-  })
+  });
 
   if (response.ok) {
     toast.success('Created successfully!', {
       position: toast.POSITION.TOP_CENTER,
       autoClose: 2500,
-    })
-    return Promise.resolve()
+    });
+    return Promise.resolve();
   } else {
     toast.error('Failed to create user.', {
       position: toast.POSITION.TOP_CENTER,
-    })
-    return Promise.reject({ status: response.status })
+    });
+    return Promise.reject({ status: response.status });
   }
-}
+};
 
 const updateUser = async (context: UserContext) => {
-  const token = getToken()
+  const token = getToken();
   const response = await fetch(
     `${CONSTANTS.API_URL}/users/${context.walletId}`,
     {
@@ -364,24 +364,24 @@ const updateUser = async (context: UserContext) => {
         monkeNumber: context.nft.monkeNo,
       }),
     },
-  )
+  );
 
   if (response.ok) {
     toast.success('Updated successfully!', {
       position: toast.POSITION.TOP_CENTER,
       autoClose: 2500,
-    })
-    return Promise.resolve()
+    });
+    return Promise.resolve();
   } else {
     toast.error('Update failed! Please try again.', {
       position: toast.POSITION.TOP_CENTER,
-    })
-    return Promise.reject({ status: response.status })
+    });
+    return Promise.reject({ status: response.status });
   }
-}
+};
 
 const deleteUser = async (context: UserContext) => {
-  const token = getToken()
+  const token = getToken();
   const response = await fetch(
     `${CONSTANTS.API_URL}/users/${context.walletId}`,
     {
@@ -392,30 +392,30 @@ const deleteUser = async (context: UserContext) => {
         'x-auth-hw': token?.hw,
       },
     },
-  )
+  );
 
   if (response.ok) {
     toast.warn('Deleted successfully!', {
       position: toast.POSITION.TOP_CENTER,
       autoClose: 2500,
-    })
-    return Promise.resolve()
+    });
+    return Promise.resolve();
   } else {
     toast.error('Deletion failed. Please try again', {
       position: toast.POSITION.TOP_CENTER,
-    })
-    return Promise.reject({ status: response.status })
+    });
+    return Promise.reject({ status: response.status });
   }
-}
+};
 
 export const createUserMachine = ({
   wallet,
   connection,
   walletId,
 }: {
-  wallet?: WalletContextState
-  connection?: Connection
-  walletId?: string
+  wallet?: WalletContextState;
+  connection?: Connection;
+  walletId?: string;
 }) =>
   createMachine<UserContext, UserEvents>(
     {
@@ -490,7 +490,7 @@ export const createUserMachine = ({
             onError: {
               target: 'loading',
               actions: (context, event) => {
-                console.log('THIS BROKE???')
+                console.log('THIS BROKE???');
               },
             },
           },
@@ -797,7 +797,7 @@ export const createUserMachine = ({
         }),
         setLocationEnabled: assign({
           location: (context, event) => {
-            const enabled = (event as ENABLE_LOCATION_EVENT).enabled
+            const enabled = (event as ENABLE_LOCATION_EVENT).enabled;
             const location = enabled
               ? context.location
               : ({
@@ -805,12 +805,12 @@ export const createUserMachine = ({
                   enabled: false,
                   text: '',
                   coordinates: [0, 0],
-                } as Location)
+                } as Location);
 
             return {
               ...location,
               enabled: (event as ENABLE_LOCATION_EVENT).enabled,
-            }
+            };
           },
         }),
         setIsHardware: assign({
@@ -821,7 +821,7 @@ export const createUserMachine = ({
           location: (context, event: any) => event.data.location,
         }),
         reloadMap: (context, event) => {
-          mapService.send('RELOAD')
+          mapService.send('RELOAD');
         },
       },
       guards: {
@@ -829,14 +829,14 @@ export const createUserMachine = ({
         geolocationEnabled: (context, event) =>
           (event as ENABLE_LOCATION_EVENT).enabled && !!navigator.geolocation,
         hasAllRequiredFields: (context, event: any) => {
-          const nft = event.nft !== undefined ? event.nft : context.nft
+          const nft = event.nft !== undefined ? event.nft : context.nft;
           const nickName =
-            event.nickName !== undefined ? event.nickName : context.nickName
-          return !!nft.id && nickName.length > 0
+            event.nickName !== undefined ? event.nickName : context.nickName;
+          return !!nft.id && nickName.length > 0;
         },
       },
     },
-  )
+  );
 
 export const UserMachine = (() => {
   let service: Interpreter<
@@ -844,8 +844,8 @@ export const UserMachine = (() => {
     any,
     UserEvents,
     {
-      value: any
-      context: UserContext
+      value: any;
+      context: UserContext;
     },
     ResolveTypegenMeta<
       TypegenDisabled,
@@ -853,7 +853,7 @@ export const UserMachine = (() => {
       BaseActionObject,
       ServiceMap
     >
-  >
+  >;
 
   return {
     get: ({
@@ -861,16 +861,16 @@ export const UserMachine = (() => {
       connection,
       walletId,
     }: {
-      wallet?: WalletContextState
-      connection?: Connection
-      walletId?: string
+      wallet?: WalletContextState;
+      connection?: Connection;
+      walletId?: string;
     }) => {
       if (!service) {
         service = interpret(
           createUserMachine({ wallet, connection, walletId }),
-        ).start()
+        ).start();
       }
-      return service
+      return service;
     },
-  }
-})()
+  };
+})();

@@ -1,18 +1,18 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import './locationList.css'
+import './locationList.css';
 
-import { Pin } from './machine'
+import { Pin } from './machine';
 
 type LocationListProps = {
-  locations: Pin[]
-  virtualLocations: Pin[]
-  loading: boolean
-  activeLocation: Pin | undefined
-}
+  locations: Pin[];
+  virtualLocations: Pin[];
+  loading: boolean;
+  activeLocation: Pin | undefined;
+};
 
-type ListView = 'Virtual' | 'Physical'
+type ListView = 'Virtual' | 'Physical';
 
 export const LocationList = ({
   locations,
@@ -20,16 +20,16 @@ export const LocationList = ({
   loading,
   activeLocation,
 }: LocationListProps): JSX.Element => {
-  const isEmpty = locations.length === 0 && virtualLocations.length === 0
+  const isEmpty = locations.length === 0 && virtualLocations.length === 0;
 
-  const [view, setView] = useState<ListView>('Physical')
+  const [view, setView] = useState<ListView>('Physical');
 
   if (loading) {
     return (
       <div className="Map-LocationList">
         <div>Loading...</div>
       </div>
-    )
+    );
   } else {
     return (
       <div className="Map-LocationList">
@@ -123,6 +123,6 @@ export const LocationList = ({
           )}
         </div>
       </div>
-    )
+    );
   }
-}
+};

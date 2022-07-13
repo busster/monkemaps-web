@@ -1,4 +1,4 @@
-const { ProvidePlugin } = require('webpack')
+const { ProvidePlugin } = require('webpack');
 
 module.exports = function (config, env) {
   return {
@@ -30,5 +30,5 @@ module.exports = function (config, env) {
       },
     },
     ignoreWarnings: [/Failed to parse source map/],
-  }
-}
+  };
+};

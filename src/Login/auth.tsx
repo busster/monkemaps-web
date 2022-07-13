@@ -1,22 +1,22 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
-import { getParsedNftAccountsByOwner } from '@nfteyez/sol-rayz'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { getParsedNftAccountsByOwner } from '@nfteyez/sol-rayz';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import {
   Connection,
   PublicKey,
   SystemProgram,
   Transaction,
-} from '@solana/web3.js'
-import { toast } from 'react-toastify'
-import { useWallet, useConnection } from '@solana/wallet-adapter-react'
-import { NftData, MetaData } from '../Models/nft'
-import axios from 'axios'
-import { chunkItems } from '../utils/promises'
-import { MDInput, MDDropdownSearch, MDCheckbox } from '../design'
-import { CONSTANTS } from '../constants'
-import { connect } from 'http2'
-import { clearToken } from '../utils/tokenUtils'
+} from '@solana/web3.js';
+import { toast } from 'react-toastify';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { NftData, MetaData } from '../Models/nft';
+import axios from 'axios';
+import { chunkItems } from '../utils/promises';
+import { MDInput, MDDropdownSearch, MDCheckbox } from '../design';
+import { CONSTANTS } from '../constants';
+import { connect } from 'http2';
+import { clearToken } from '../utils/tokenUtils';
 import {
   VStack,
   Checkbox,
@@ -29,18 +29,18 @@ import {
   Box,
   Center,
   Image,
-} from '@chakra-ui/react'
+} from '@chakra-ui/react';
 
 //import './auth.css'
 
-const bs58 = require('bs58')
+const bs58 = require('bs58');
 
 export type LoginProps = {
-  setToken: (token: any) => any
-}
+  setToken: (token: any) => any;
+};
 
 export const Login = (props: LoginProps): JSX.Element => {
-  const { setToken } = props
+  const { setToken } = props;
   const {
     wallet,
     publicKey,
@@ -49,33 +49,33 @@ export const Login = (props: LoginProps): JSX.Element => {
     connect,
     signMessage,
     signTransaction,
-  } = useWallet()
+  } = useWallet();
 
   wallet?.adapter?.addListener('disconnect', () => {
-    clearToken()
-    window.location.reload()
-  })
+    clearToken();
+    window.location.reload();
+  });
 
-  const { connection } = useConnection()
-  const [isHardwareWallet, setIsHardwareWallet] = useState(false)
-  const walletId = publicKey?.toBase58() ?? ''
+  const { connection } = useConnection();
+  const [isHardwareWallet, setIsHardwareWallet] = useState(false);
+  const walletId = publicKey?.toBase58() ?? '';
   const verify = useCallback(async () => {
     if (!connected) {
-      await connect()
+      await connect();
     }
     try {
       toast.info('Logging you in...', {
         position: toast.POSITION.TOP_CENTER,
         autoClose: 2500,
-      })
-      const message = `Sign this message for authenticating with your wallet. Nonce: ${walletId}`
-      const conn = connection as Connection
+      });
+      const message = `Sign this message for authenticating with your wallet. Nonce: ${walletId}`;
+      const conn = connection as Connection;
       if (isHardwareWallet) {
         if (!signTransaction) {
           toast.error('Wallet does not support signing transactions.', {
             position: toast.POSITION.TOP_CENTER,
-          })
-          return Promise.reject()
+          });
+          return Promise.reject();
         }
         //hardcode for now
         const response = await fetch(
@@ -88,26 +88,26 @@ export const Login = (props: LoginProps): JSX.Element => {
             },
             body: JSON.stringify({ walletId, message: btoa(message) }),
           },
-        )
+        );
 
-        const res = await response.json()
-        const latestBlockHash = await conn.getLatestBlockhash()
-        const walletPk = new PublicKey(walletId)
-        const transaction = new Transaction()
-        transaction.feePayer = walletPk
-        transaction.recentBlockhash = latestBlockHash.blockhash
+        const res = await response.json();
+        const latestBlockHash = await conn.getLatestBlockhash();
+        const walletPk = new PublicKey(walletId);
+        const transaction = new Transaction();
+        transaction.feePayer = walletPk;
+        transaction.recentBlockhash = latestBlockHash.blockhash;
         transaction.add(
           SystemProgram.transfer({
             fromPubkey: walletPk,
             toPubkey: new PublicKey(res.destination),
             lamports: res.lamports,
           }),
-        )
-        const signedTxn = await signTransaction(transaction)
-        const txnSerialized = signedTxn.serialize()
+        );
+        const signedTxn = await signTransaction(transaction);
+        const txnSerialized = signedTxn.serialize();
         const signature = await conn.sendRawTransaction(txnSerialized, {
           skipPreflight: true,
-        })
+        });
         await conn.confirmTransaction(
           {
             blockhash: latestBlockHash.blockhash,
@@ -115,19 +115,19 @@ export const Login = (props: LoginProps): JSX.Element => {
             signature,
           },
           'confirmed',
-        )
-        setToken({ token: res, hw: 'true', txn: signature })
+        );
+        setToken({ token: res, hw: 'true', txn: signature });
         toast.success('Success! Redirecting...', {
           position: toast.POSITION.TOP_CENTER,
-        })
-        window.location.reload()
+        });
+        window.location.reload();
       } else {
-        const encodedMessage = new TextEncoder().encode(message)
-        if (!walletId) throw new Error('Wallet not connected!')
+        const encodedMessage = new TextEncoder().encode(message);
+        if (!walletId) throw new Error('Wallet not connected!');
         if (!signMessage)
-          throw new Error('Wallet does not support message signing!')
-        const signedMessage = await signMessage(encodedMessage)
-        const signedAndEncodedMessage = bs58.encode(signedMessage)
+          throw new Error('Wallet does not support message signing!');
+        const signedMessage = await signMessage(encodedMessage);
+        const signedAndEncodedMessage = bs58.encode(signedMessage);
         const response = await fetch(
           `http://localhost:4000/monkemaps/auth/sign`,
           {
@@ -142,22 +142,22 @@ export const Login = (props: LoginProps): JSX.Element => {
               signedMsg: signedAndEncodedMessage,
             }),
           },
-        )
-        const tkn = await response.json()
-        setToken({ token: tkn.token, hw: '' })
+        );
+        const tkn = await response.json();
+        setToken({ token: tkn.token, hw: '' });
         toast.success('Success! Redirecting...', {
           position: toast.POSITION.TOP_CENTER,
-        })
-        window.location.reload()
+        });
+        window.location.reload();
       }
     } catch (err: any) {
-      console.log('ERROR >>>', err, err?.message)
+      console.log('ERROR >>>', err, err?.message);
       toast.error('Failed to login.', {
         position: toast.POSITION.TOP_CENTER,
-      })
-      return Promise.reject(err)
+      });
+      return Promise.reject(err);
     }
-  }, [publicKey, isHardwareWallet])
+  }, [publicKey, isHardwareWallet]);
 
   return (
     <VStack>
@@ -218,5 +218,5 @@ export const Login = (props: LoginProps): JSX.Element => {
         <Box height="5px" />
       </SimpleGrid>
     </VStack>
-  )
-}
+  );
+};
