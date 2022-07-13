@@ -28,6 +28,15 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Login } from './Login/auth'
 import useToken from './Hooks/useToken'
+import { ChakraProvider, extendTheme } from '@chakra-ui/react'
+import { Fonts } from './design/fonts/Font'
+
+const theme = extendTheme({
+  fonts: {
+    heading: 'Space Grotesk',
+    body: 'Space Grotesk',
+  },
+})
 
 export const App = () => {
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
@@ -57,25 +66,28 @@ export const App = () => {
   const { token, setToken } = useToken()
 
   return (
-    <ViewportProvider>
-      <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect>
-          <WalletModalProvider>
-            {!token?.token ? (
-              <Login setToken={setToken} />
-            ) : (
-              <HashRouter>
-                <div>
-                  <AppNavBar />
-                  <AppRoutes />
-                </div>
-              </HashRouter>
-            )}
-            <ToastContainer />
-          </WalletModalProvider>
-        </WalletProvider>
-      </ConnectionProvider>
-    </ViewportProvider>
+    <ChakraProvider theme={theme}>
+      <Fonts />
+      <ViewportProvider>
+        <ConnectionProvider endpoint={endpoint}>
+          <WalletProvider wallets={wallets} autoConnect>
+            <WalletModalProvider>
+              {!token?.token ? (
+                <Login setToken={setToken} />
+              ) : (
+                <HashRouter>
+                  <div>
+                    <AppNavBar />
+                    <AppRoutes />
+                  </div>
+                </HashRouter>
+              )}
+              <ToastContainer />
+            </WalletModalProvider>
+          </WalletProvider>
+        </ConnectionProvider>
+      </ViewportProvider>
+    </ChakraProvider>
   )
 }
 

@@ -13,16 +13,16 @@ import { NftData, MetaData } from '../Models/nft'
 import axios from 'axios'
 import { chunkItems } from '../utils/promises'
 import { MDInput, MDDropdownSearch, MDSwitch, MDCheckbox } from '../design'
+import { clearToken } from '../utils/tokenUtils'
 
 export const UserInformation = (): JSX.Element => {
-  const wallet = useWallet()
+  const { wallet, publicKey } = useWallet()
+  const walletContext = useWallet()
   const { connection } = useConnection()
   const [nftArrayLoading, setNftArrayLoading] = useState(true)
   const [nftArray, setNftArray] = useState<NftData[]>([])
-  const { publicKey } = wallet
   const walletId = publicKey?.toBase58()
-
-  const [state, send] = useActor(UserMachine.get({ wallet, connection }))
+  const [state, send] = useActor(UserMachine.get({ wallet: walletContext, connection }))
   console.log(state)
   useEffect(() => {
     let active = true
@@ -61,6 +61,11 @@ export const UserInformation = (): JSX.Element => {
       setNftArray(nftResult)
     }
   }, [walletId, connection])
+
+  wallet?.adapter?.addListener('disconnect', () => {
+    clearToken()
+    window.location.reload();
+  })
 
   // const state = {matches: (s: any) => Boolean, value: '', context: {lat: 0, lng: 0}};
   // const send = (s: string, a?: any) => {}
@@ -133,20 +138,6 @@ export const UserInformation = (): JSX.Element => {
               <h2 className="Profile__title">Wallet</h2>
               <WalletMultiButton />
             </div>
-
-            {monkeSelected && (
-              <div className="Profile__section">
-                <h3 className="Profile__title">Using Hardware Wallet?</h3>
-                <div className="Profile__hardware-switch">
-                  <MDCheckbox
-                    checked={isHardware}
-                    setChecked={(checked) => {
-                      send({ type: 'IS_HARDWARE_WALLET', isHardware: checked })
-                    }}
-                  />
-                </div>
-              </div>
-            )}
 
             <div className="Profile__section">
               <div className="Profile__gallery-container">

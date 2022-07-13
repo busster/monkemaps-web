@@ -16,8 +16,22 @@ import { chunkItems } from '../utils/promises'
 import { MDInput, MDDropdownSearch, MDCheckbox } from '../design'
 import { CONSTANTS } from '../constants'
 import { connect } from 'http2'
-import { clearToken } from '../utils/tokenUtils';
-import './auth.css'
+import { clearToken } from '../utils/tokenUtils'
+import {
+  VStack,
+  Checkbox,
+  Divider,
+  Container,
+  Button,
+  Text,
+  Heading,
+  SimpleGrid,
+  Box,
+  Center,
+  Image,
+} from '@chakra-ui/react'
+
+//import './auth.css'
 
 const bs58 = require('bs58')
 
@@ -26,7 +40,7 @@ export type LoginProps = {
 }
 
 export const Login = (props: LoginProps): JSX.Element => {
-  const {setToken } = props;
+  const { setToken } = props
   const {
     wallet,
     publicKey,
@@ -37,16 +51,17 @@ export const Login = (props: LoginProps): JSX.Element => {
     signTransaction,
   } = useWallet()
 
-  wallet?.adapter?.addListener('disconnect', () => { 
-    clearToken();
-  });
+  wallet?.adapter?.addListener('disconnect', () => {
+    clearToken()
+    window.location.reload()
+  })
 
   const { connection } = useConnection()
   const [isHardwareWallet, setIsHardwareWallet] = useState(false)
   const walletId = publicKey?.toBase58() ?? ''
   const verify = useCallback(async () => {
-    if(!connected) {
-      await connect();
+    if (!connected) {
+      await connect()
     }
     try {
       toast.info('Logging you in...', {
@@ -63,14 +78,17 @@ export const Login = (props: LoginProps): JSX.Element => {
           return Promise.reject()
         }
         //hardcode for now
-        const response = await fetch(`http://localhost:4000/monkemaps/auth/txn`, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `http://localhost:4000/monkemaps/auth/txn`,
+          {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ walletId, message: btoa(message) }),
           },
-          body: JSON.stringify({ walletId, message: btoa(message) }),
-        })
+        )
 
         const res = await response.json()
         const latestBlockHash = await conn.getLatestBlockhash()
@@ -98,7 +116,8 @@ export const Login = (props: LoginProps): JSX.Element => {
           },
           'confirmed',
         )
-        setToken({token: res, hw: 'true', txn: signature});
+        setToken({ token: res, hw: 'true', txn: signature })
+        window.location.reload()
       } else {
         const encodedMessage = new TextEncoder().encode(message)
         if (!walletId) throw new Error('Wallet not connected!')
@@ -106,16 +125,24 @@ export const Login = (props: LoginProps): JSX.Element => {
           throw new Error('Wallet does not support message signing!')
         const signedMessage = await signMessage(encodedMessage)
         const signedAndEncodedMessage = bs58.encode(signedMessage)
-        const response = await fetch(`http://localhost:4000/monkemaps/auth/sign`, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `http://localhost:4000/monkemaps/auth/sign`,
+          {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              walletId,
+              message: btoa(message),
+              signedMsg: signedAndEncodedMessage,
+            }),
           },
-          body: JSON.stringify({ walletId, message: btoa(message), signedMsg: signedAndEncodedMessage }),
-        });
-        const tkn = await response.json();
-        setToken({token: tkn.token, hw: ''});
+        )
+        const tkn = await response.json()
+        setToken({ token: tkn.token, hw: '' })
+        window.location.reload()
       }
     } catch (err: any) {
       console.log('ERROR >>>', err, err?.message)
@@ -127,33 +154,63 @@ export const Login = (props: LoginProps): JSX.Element => {
   }, [publicKey, isHardwareWallet])
 
   return (
-    <div>
-    <div className="Profile__view-container">
-    <div className="Profile__view-body-container">
-      <div className="Profile__header">
-        <h2>Authenticate your Monke Wallet</h2>
-        <div className="Profile__view-section">
-          <h3 className="Profile__title">Using Hardware Wallet?</h3>
-          <div className="Profile__hardware-switch">
-            <MDCheckbox
+    <VStack>
+      <Box height="10px"></Box>
+      <SimpleGrid
+        minChildWidth="400px"
+        columns={1}
+        spacing={10}
+        borderWidth="1px"
+        boxShadow={'lg'}
+        borderRadius="lg"
+      >
+        <Box height="10px" />
+        <Center h="20px">
+          <Box height="10px">
+            <Image
+              maxWidth={'200px'}
+              objectFit="cover"
+              src="/MonkeDAO_FullLogoHoriz_DkGreen_PANTONE.png"
+            />
+          </Box>
+        </Center>
+        <Center h="10px">
+          <Box height="10px">
+            <Heading fontSize={'Large'}>Authenticate your Monke Wallet</Heading>
+          </Box>
+        </Center>
+        <Box height="50px">
+          <Center h="50px">
+            <WalletMultiButton />
+          </Center>
+        </Box>
+        <Box height="10px">
+          <Center h="50px">
+            <Checkbox
+              size="lg"
+              spacing="1rem"
+              colorScheme="green"
               checked={isHardwareWallet}
-              setChecked={setIsHardwareWallet}
-            />
-          </div>
-        </div>
-          <button className="Profile__back button" onClick={verify} disabled={!connected && !publicKey}>
-            <img
-              className="Profile__back-icon"
-              src="/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-89.svg"
-              alt="MonkeDAO Profile Back Icon"
-            />
-            Authenticate
-          </button>
-        
-         <WalletMultiButton />
-      </div>
-    </div>
-    </div>
-    </div>
+              onChange={(e: any) => setIsHardwareWallet(e.target.checked)}
+            >
+              Using Hardware wallet?
+            </Checkbox>
+          </Center>
+        </Box>
+        <Box height="80px">
+          <Center h="100px">
+            <Button onClick={verify} disabled={!connected && !publicKey}>
+              <img
+                className="Profile__back-icon"
+                src="/MonkeDAO_Icons_Col/MonkeDAO_Icons_Working-61.svg"
+                alt="MonkeDAO Profile Back Icon"
+              />
+              Authenticate
+            </Button>
+          </Center>
+        </Box>
+        <Box height="5px"/>
+      </SimpleGrid>
+    </VStack>
   )
 }

@@ -17,6 +17,7 @@ import { ClusterMarker, Marker, UserMarker } from './marker'
 import { LocationList } from './locationList'
 
 import { Rendered, Supercluster } from './supercluster'
+import { toast } from 'react-toastify'
 
 mapboxgl.workerClass = MapboxWorker // Wire up loaded worker to be used instead of the default
 
@@ -302,6 +303,9 @@ const useMap = () => {
     state,
     send,
     reload: () => {
+      toast.info('Refreshing map...', {
+        position: toast.POSITION.BOTTOM_CENTER,
+      })
       send('RELOAD')
     },
     rerender: () => {

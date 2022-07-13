@@ -12,7 +12,7 @@ import { customAlphabet } from 'nanoid'
 import { DateTime } from 'luxon'
 
 import { CONSTANTS } from '../constants'
-import  { getToken } from '../utils/tokenUtils';
+import { getToken } from '../utils/tokenUtils'
 
 const nanoid = customAlphabet(
   '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -87,53 +87,53 @@ type MapEvents =
   | { type: 'RELOAD' }
 
 const fetchEvents = async () => {
-  const token = getToken();
-  const response = await fetch(`${CONSTANTS.API_URL}/events`, {
-    method: 'GET',
-    headers: {
-      'x-auth-token': token?.token,
-      'x-auth-txn': token?.txn,
-      'x-auth-hw': token?.hw,
+  const token = getToken()
+  if (token) {
+    const response = await fetch(`${CONSTANTS.API_URL}/events`, {
+      method: 'GET',
+      headers: {
+        'x-auth-token': token?.token,
+        'x-auth-txn': token?.txn,
+        'x-auth-hw': token?.hw,
+      },
+    })
 
+    const res = await response.json()
+    // console.log(res);
+
+    if (response.ok) {
+      return res
+    } else {
+      return Promise.reject({ status: response.status })
     }
-  });
-
-  const res = await response.json()
-  // console.log(res);
-
-  if (response.ok) {
-    return res
-  } else {
-    return Promise.reject({ status: response.status })
   }
 }
 
 const fetchUsers = async () => {
-  const token = getToken();
-  const response = await fetch(`${CONSTANTS.API_URL}/users`, {
-    method: 'GET',
-    headers: {
-      'x-auth-token': token?.token,
-      'x-auth-txn': token?.txn,
-      'x-auth-hw': token?.hw,
+  const token = getToken()
+  if (token) {
+    const response = await fetch(`${CONSTANTS.API_URL}/users`, {
+      method: 'GET',
+      headers: {
+        'x-auth-token': token?.token,
+        'x-auth-txn': token?.txn,
+        'x-auth-hw': token?.hw,
+      },
+    })
 
+    const res = await response.json()
+    // console.log(res);
+
+    if (response.ok) {
+      return res
+    } else {
+      return Promise.reject({ status: response.status })
     }
-  })
-
-  const res = await response.json()
-  // console.log(res);
-
-  if (response.ok) {
-    return res
-  } else {
-    return Promise.reject({ status: response.status })
   }
 }
 
 const fetchAll = async () => {
-  const events = await fetchEvents()
-  const users = await fetchUsers()
-
+  const [events, users] = await Promise.all([fetchEvents(), fetchUsers()])
   return { events, users }
 }
 
