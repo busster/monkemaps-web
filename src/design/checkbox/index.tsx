@@ -1,12 +1,12 @@
-import './index.css'
+import './index.css';
 
 type MDCheckboxProps = {
-  checked: boolean
-  setChecked: (checked: boolean) => void
-}
+  checked: boolean;
+  setChecked: (checked: boolean) => void;
+};
 
 export const MDCheckbox = (props: MDCheckboxProps) => {
-  const { checked, setChecked } = props
+  const { checked, setChecked } = props;
 
   return (
     <div>
@@ -17,5 +17,5 @@ export const MDCheckbox = (props: MDCheckboxProps) => {
         onChange={() => setChecked(!checked)}
       ></input>
     </div>
-  )
-}
+  );
+};

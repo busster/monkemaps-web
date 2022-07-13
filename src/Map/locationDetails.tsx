@@ -1,38 +1,38 @@
-import React from 'react'
+import React from 'react';
 
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-import { useActor } from '@xstate/react'
+import { useActor } from '@xstate/react';
 
-import './locationDetails.css'
+import './locationDetails.css';
 
-import { mapService } from './machine'
+import { mapService } from './machine';
 
 const useLocationDetails = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const [state] = useActor(mapService)
+  const [state] = useActor(mapService);
 
-  const a = useLocation()
-  const idMatch = a.pathname.match(/\/map\/(.*)/)
-  const id = idMatch && idMatch.length > 1 && idMatch[1]
+  const a = useLocation();
+  const idMatch = a.pathname.match(/\/map\/(.*)/);
+  const id = idMatch && idMatch.length > 1 && idMatch[1];
 
-  const location = state.context.pins.find((pin) => pin.id === id)
+  const location = state.context.pins.find((pin) => pin.id === id);
 
   if (!location) {
-    navigate('/map')
+    navigate('/map');
   }
 
-  return location
-}
+  return location;
+};
 
 export const LocationDetails: React.FunctionComponent = (): JSX.Element => {
-  const location = useLocationDetails()
+  const location = useLocationDetails();
 
-  console.log(location)
-  let extraLink = location?.extraLink
+  console.log(location);
+  let extraLink = location?.extraLink;
   if (extraLink !== undefined && !extraLink?.startsWith('http')) {
-    extraLink = `http://${extraLink}`
+    extraLink = `http://${extraLink}`;
   }
 
   return (
@@ -116,5 +116,5 @@ export const LocationDetails: React.FunctionComponent = (): JSX.Element => {
         ) : null}
       </div>
     </div>
-  )
-}
+  );
+};

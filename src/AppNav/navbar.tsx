@@ -1,11 +1,11 @@
-import React, { FC, useEffect, useMemo } from 'react'
+import React, { FC, useEffect, useMemo } from 'react';
 import {
   ConnectionProvider,
   useWallet,
   WalletProvider,
   useConnection,
-} from '@solana/wallet-adapter-react'
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
+} from '@solana/wallet-adapter-react';
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
   GlowWalletAdapter,
   PhantomWalletAdapter,
@@ -14,35 +14,37 @@ import {
   SolletExtensionWalletAdapter,
   SolletWalletAdapter,
   TorusWalletAdapter,
-} from '@solana/wallet-adapter-wallets'
+} from '@solana/wallet-adapter-wallets';
 import {
   WalletModalProvider,
   WalletDisconnectButton,
   WalletMultiButton,
-} from '@solana/wallet-adapter-react-ui'
-import { clusterApiUrl } from '@solana/web3.js'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+} from '@solana/wallet-adapter-react-ui';
+import { clusterApiUrl } from '@solana/web3.js';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
-import '@solana/wallet-adapter-react-ui/styles.css'
-import '../App.css'
-import { useActor } from '@xstate/react'
-import { UserMachine } from '../Profile/machine'
+import '@solana/wallet-adapter-react-ui/styles.css';
+import '../App.css';
+import { useActor } from '@xstate/react';
+import { UserMachine } from '../Profile/machine';
+import { getToken } from '../utils/tokenUtils';
 
 export const AppNavBar = () => {
-  const wallet = useWallet()
-  const { connection } = useConnection()
-  const { publicKey } = wallet
+  const wallet = useWallet();
+  const { connection } = useConnection();
+  const token = getToken();
+  const { publicKey } = wallet;
 
   useEffect(() => {
     if (!publicKey) {
-      const service = UserMachine.get({})
-      service.send('DISCONNECT')
-      return
+      const service = UserMachine.get({});
+      service.send('DISCONNECT');
+      return;
     }
 
-    const service = UserMachine.get({ wallet })
-    service.send('CONNECT', { wallet, connection })
-  }, [publicKey, connection])
+    const service = UserMachine.get({ wallet });
+    service.send('CONNECT', { wallet, connection });
+  }, [publicKey, connection]);
 
   return (
     <nav className="App__nav">
@@ -70,5 +72,5 @@ export const AppNavBar = () => {
         )}
       </div>
     </nav>
-  )
-}
+  );
+};

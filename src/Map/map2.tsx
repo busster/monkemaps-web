@@ -1,32 +1,39 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { debounce, throttle } from 'lodash'
+import { debounce, throttle } from 'lodash';
 
-import mapboxgl from 'mapbox-gl'
-import 'mapbox-gl/dist/mapbox-gl.css'
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
-import { useActor } from '@xstate/react'
+import { useActor } from '@xstate/react';
 
-import { mapService, Pin, User } from './machine'
+import { mapService, Pin, User } from './machine';
 
-import './map.css'
+import './map.css';
 
-import { ClusterMarker, Marker, UserMarker } from './marker'
-import { LocationList } from './locationList'
+import { ClusterMarker, Marker, UserMarker } from './marker';
+import { LocationList } from './locationList';
 
-import { Rendered, Supercluster } from './supercluster'
+import { Rendered, Supercluster } from './supercluster';
+import { toast } from 'react-toastify';
 
 mapboxgl.accessToken =
-  'pk.eyJ1IjoiamFzb25idXNzIiwiYSI6ImNsMnhxcWM3bzB5Y28zYnBmZGtrenhiZmMifQ.iNeJnRHRkvoKl5TnZvy8gg'
+  'pk.eyJ1IjoiamFzb25idXNzIiwiYSI6ImNsMnhxcWM3bzB5Y28zYnBmZGtrenhiZmMifQ.iNeJnRHRkvoKl5TnZvy8gg';
 
 const createMarkerClickHandler = (navigate: any, pin: any) => () => {
-  navigate(`/map/${pin.id}`)
-}
+  navigate(`/map/${pin.id}`);
+};
 
 const createUserMarkerClickHandler = (navigate: any, user: any) => () => {
-  navigate(`/monke/${user.id}`)
-}
+  navigate(`/monke/${user.id}`);
+};
 
 function intersectRect(r1: any, r2: any) {
   return !(
@@ -34,93 +41,93 @@ function intersectRect(r1: any, r2: any) {
     r2.right < r1.left ||
     r2.top > r1.bottom ||
     r2.bottom < r1.top
-  )
+  );
 }
 
 function getVisibleMarkers(map: any): string[] {
-  var cc = map.getContainer()
-  var els = cc.getElementsByClassName('mapboxgl-marker')
-  var ccRect = cc.getBoundingClientRect()
-  var visibles = []
+  var cc = map.getContainer();
+  var els = cc.getElementsByClassName('mapboxgl-marker');
+  var ccRect = cc.getBoundingClientRect();
+  var visibles = [];
   for (var i = 0; i < els.length; i++) {
-    var el = els.item(i)
-    var elRect = el.getBoundingClientRect()
-    intersectRect(ccRect, elRect) && visibles.push(el)
+    var el = els.item(i);
+    var elRect = el.getBoundingClientRect();
+    intersectRect(ccRect, elRect) && visibles.push(el);
   }
   if (visibles.length > 0) {
     const map = {} as {
-      [key in string]: string
-    }
-    visibles.forEach((v) => (map[v.id] = v.id))
-    return Object.values(map)
+      [key in string]: string;
+    };
+    visibles.forEach((v) => (map[v.id] = v.id));
+    return Object.values(map);
   }
-  return []
+  return [];
 }
 
-let updateMarkers = () => {}
-let handleSetLatLngZoom = () => {}
-let handleSetVisibleMarkers = () => {}
+let updateMarkers = () => {};
+let handleSetLatLngZoom = () => {};
+let handleSetVisibleMarkers = () => {};
 
 const useMap = () => {
-  const navigate = useNavigate()
-  const map = useRef<null | mapboxgl.Map>(null)
-  const container = useRef(null)
+  const navigate = useNavigate();
+  const map = useRef<null | mapboxgl.Map>(null);
+  const container = useRef(null);
 
-  const defLng = window.localStorage.getItem('map.lng')
-  const defLat = window.localStorage.getItem('map.lat')
-  const defZoom = window.localStorage.getItem('map.zoom')
+  const defLng = window.localStorage.getItem('map.lng');
+  const defLat = window.localStorage.getItem('map.lat');
+  const defZoom = window.localStorage.getItem('map.zoom');
 
-  const [lng, setLng] = useState(defLng ? parseFloat(defLng) : -74.5)
-  const [lat, setLat] = useState(defLat ? parseFloat(defLat) : 40)
-  const [zoom, setZoom] = useState(defZoom ? parseFloat(defZoom) : 9)
+  const [lng, setLng] = useState(defLng ? parseFloat(defLng) : -74.5);
+  const [lat, setLat] = useState(defLat ? parseFloat(defLat) : 40);
+  const [zoom, setZoom] = useState(defZoom ? parseFloat(defZoom) : 9);
 
   // const [markers, setMarkers] = useState<mapboxgl.Marker[]>([]);
-  const [visibleMarkers, setVisibleMarkers] = useState<Pin[]>([])
-  const [hoveredMarker, setHoveredMarker] = useState<Pin>()
+  const [visibleMarkers, setVisibleMarkers] = useState<Pin[]>([]);
+  const [hoveredMarker, setHoveredMarker] = useState<Pin>();
 
   const [clusterizer, setClusterizer] = useState(
     new Supercluster({
       radius: 20,
     }),
-  )
+  );
 
-  const [allPins, setAllPins] = useState<{ [key in string]: Pin | User }>({})
+  const [allPins, setAllPins] = useState<{ [key in string]: Pin | User }>({});
 
   updateMarkers = () => {
-    Rendered.get().forEach((p: any) => p.remove())
-    const newRenderedPins: any[] = []
+    Rendered.get().forEach((p: any) => p.remove());
+    const newRenderedPins: any[] = [];
 
-    const mapbox = map.current as mapboxgl.Map
-    const bounds = mapbox.getBounds()
-    const southwest = bounds.getSouthWest()
-    const northeast = bounds.getNorthEast()
-    const bbox = [southwest.lng, southwest.lat, northeast.lng, northeast.lat]
-    const clusters = clusterizer.getClusters(bbox, mapbox.getZoom())
+    const mapbox = map.current as mapboxgl.Map;
+    const bounds = mapbox.getBounds();
+    const southwest = bounds.getSouthWest();
+    const northeast = bounds.getNorthEast();
+    const bbox = [southwest.lng, southwest.lat, northeast.lng, northeast.lat];
+    const clusters = clusterizer.getClusters(bbox, mapbox.getZoom());
 
     clusters.forEach((feature: any) => {
-      const coords = feature.geometry.coordinates
-      const props = feature.properties
+      const coords = feature.geometry.coordinates;
+      const props = feature.properties;
 
       if (props.cluster) {
-        const id = props.cluster_id
+        const id = props.cluster_id;
         const marker = new mapboxgl.Marker(
           ClusterMarker({
             cluster: props,
             handleOnclick: () => {
-              const zoom = clusterizer.getClusterExpansionZoom(id)
-              ;(map.current as mapboxgl.Map).easeTo({
+              const zoom = clusterizer.getClusterExpansionZoom(id);
+              (map.current as mapboxgl.Map).easeTo({
                 center: coords,
                 zoom,
-              })
+              });
             },
           }),
-        ).setLngLat(coords)
-        newRenderedPins.push(marker)
+        ).setLngLat(coords);
+        newRenderedPins.push(marker);
       } else {
-        const id = props.id
+        const id = props.id;
 
         if (props.markerType === 'Pin') {
-          const pin = allPins[props.id]
+          const pin = allPins[props.id];
           const marker = new mapboxgl.Marker(
             Marker({
               pin: pin as Pin,
@@ -128,14 +135,14 @@ const useMap = () => {
               handleOnmouseenter: () => {
                 document
                   .getElementById(`Map-LocationList__item-${props.id}`)
-                  ?.scrollIntoView({ behavior: 'smooth' })
+                  ?.scrollIntoView({ behavior: 'smooth' });
               },
               handleOnmouseleave: () => {},
             }),
-          ).setLngLat(coords)
-          newRenderedPins.push(marker)
+          ).setLngLat(coords);
+          newRenderedPins.push(marker);
         } else {
-          const user = allPins[props.id]
+          const user = allPins[props.id];
           const marker = new mapboxgl.Marker(
             UserMarker({
               user: user as User,
@@ -143,81 +150,81 @@ const useMap = () => {
               handleOnmouseenter: () => {},
               handleOnmouseleave: () => {},
             }),
-          ).setLngLat(coords)
-          newRenderedPins.push(marker)
+          ).setLngLat(coords);
+          newRenderedPins.push(marker);
         }
       }
-    })
+    });
 
-    newRenderedPins.forEach((p: any) => p.addTo(map.current as mapboxgl.Map))
-    Rendered.set(newRenderedPins)
-  }
+    newRenderedPins.forEach((p: any) => p.addTo(map.current as mapboxgl.Map));
+    Rendered.set(newRenderedPins);
+  };
 
-  const [state] = useActor(mapService)
+  const [state] = useActor(mapService);
   // console.log(state.value)
-  const send = mapService.send
+  const send = mapService.send;
 
   handleSetLatLngZoom = () => {
-    const mapbox = map.current
-    if (!mapbox) return
-    const newLng = mapbox.getCenter().lng
-    const newLat = mapbox.getCenter().lat
-    const newZoom = mapbox.getZoom()
+    const mapbox = map.current;
+    if (!mapbox) return;
+    const newLng = mapbox.getCenter().lng;
+    const newLat = mapbox.getCenter().lat;
+    const newZoom = mapbox.getZoom();
 
-    window.localStorage.setItem('map.lng', newLng.toFixed(4))
-    window.localStorage.setItem('map.lat', newLat.toFixed(4))
-    window.localStorage.setItem('map.zoom', newZoom.toFixed(4))
+    window.localStorage.setItem('map.lng', newLng.toFixed(4));
+    window.localStorage.setItem('map.lat', newLat.toFixed(4));
+    window.localStorage.setItem('map.zoom', newZoom.toFixed(4));
 
-    setLng(mapbox.getCenter().lng)
-    setLat(mapbox.getCenter().lat)
-    setZoom(mapbox.getZoom())
-  }
+    setLng(mapbox.getCenter().lng);
+    setLat(mapbox.getCenter().lat);
+    setZoom(mapbox.getZoom());
+  };
   handleSetVisibleMarkers = () => {
-    const mapbox = map.current
-    if (!mapbox) return
+    const mapbox = map.current;
+    if (!mapbox) return;
 
-    const bounds = mapbox.getBounds()
-    const southwest = bounds.getSouthWest()
-    const northeast = bounds.getNorthEast()
-    const bbox = [southwest.lng, southwest.lat, northeast.lng, northeast.lat]
-    const clusters = clusterizer.getClusters(bbox, mapbox.getZoom())
+    const bounds = mapbox.getBounds();
+    const southwest = bounds.getSouthWest();
+    const northeast = bounds.getNorthEast();
+    const bbox = [southwest.lng, southwest.lat, northeast.lng, northeast.lat];
+    const clusters = clusterizer.getClusters(bbox, mapbox.getZoom());
 
-    const markerIdsInBounds: string[] = []
+    const markerIdsInBounds: string[] = [];
 
     clusters.forEach((feature: any) => {
-      const props = feature.properties
+      const props = feature.properties;
       if (props.cluster) {
-        const id = props.cluster_id
-        const points = clusterizer.getLeaves(id, Infinity)
+        const id = props.cluster_id;
+        const points = clusterizer.getLeaves(id, Infinity);
         points.forEach((p: any) => {
-          markerIdsInBounds.push(p.properties.id)
-        })
+          markerIdsInBounds.push(p.properties.id);
+        });
       } else {
-        const id = props.id
-        const markerType = props.markerType
+        const id = props.id;
+        const markerType = props.markerType;
         if (markerType === 'Pin') {
-          markerIdsInBounds.push(id)
+          markerIdsInBounds.push(id);
         }
       }
-    })
+    });
 
     // const visibleMarkers = getVisibleMarkers(mapbox);
     setVisibleMarkers(
       state.context.pins.filter((pin: any) =>
         markerIdsInBounds.includes(pin.id),
       ),
-    )
-  }
+    );
+  };
   const moveFunc = () => {
-    handleSetLatLngZoom()
-  }
+    handleSetLatLngZoom();
+  };
   const moveEndFunc = () => {
-    handleSetVisibleMarkers()
-    updateMarkers()
-  }
+    handleSetVisibleMarkers();
+    updateMarkers();
+  };
 
   useEffect(() => {
-    if (!container.current) return
+    if (!container.current) return;
 
     const mapbox = new mapboxgl.Map({
       container: container.current,
@@ -225,31 +232,31 @@ const useMap = () => {
       center: [lng, lat],
       zoom: zoom,
       attributionControl: false,
-    })
+    });
 
-    mapbox.on('move', moveFunc)
-    mapbox.on('moveend', moveEndFunc)
+    mapbox.on('move', moveFunc);
+    mapbox.on('moveend', moveEndFunc);
 
-    map.current = mapbox
+    map.current = mapbox;
 
-    send('REPOINT')
+    send('REPOINT');
 
     return () => {
-      const mapbox = map.current as mapboxgl.Map
+      const mapbox = map.current as mapboxgl.Map;
 
-      mapbox.off('move', moveFunc)
-      mapbox.off('moveend', moveEndFunc)
+      mapbox.off('move', moveFunc);
+      mapbox.off('moveend', moveEndFunc);
 
-      Rendered.get().forEach((p: any) => p.remove())
-      Rendered.set([])
-    }
-  }, [container])
+      Rendered.get().forEach((p: any) => p.remove());
+      Rendered.set([]);
+    };
+  }, [container]);
 
   useEffect(() => {
-    if (!map.current) return
+    if (!map.current) return;
 
     if (state.matches('display.none')) {
-      send('RENDER')
+      send('RENDER');
     }
 
     if (
@@ -260,12 +267,12 @@ const useMap = () => {
       const allPinsArr: (Pin | User)[] = [
         ...state.context.pins.filter((pin) => !pin.virtual),
         ...state.context.users.filter((u) => u.showLocation),
-      ]
+      ];
       const newAllPinsObj = allPinsArr.reduce((acc, n) => {
-        acc[n.id] = n
-        return acc
-      }, allPins)
-      setAllPins(newAllPinsObj)
+        acc[n.id] = n;
+        return acc;
+      }, allPins);
+      setAllPins(newAllPinsObj);
 
       clusterizer.load(
         allPinsArr.map((p) => ({
@@ -279,16 +286,16 @@ const useMap = () => {
             coordinates: p.coordinates,
           },
         })),
-      )
+      );
 
-      setClusterizer(clusterizer)
+      setClusterizer(clusterizer);
 
-      updateMarkers()
-      handleSetVisibleMarkers()
+      updateMarkers();
+      handleSetVisibleMarkers();
 
-      send('POINT')
+      send('POINT');
     }
-  }, [map, state.value])
+  }, [map, state.value]);
 
   return {
     container,
@@ -303,14 +310,20 @@ const useMap = () => {
     state,
     send,
     reload: () => {
-      send('RELOAD')
+      toast.info('Refreshing map...', {
+        position: toast.POSITION.BOTTOM_CENTER,
+      });
+      send('RELOAD');
+      toast.success('Map refreshed!', {
+        position: toast.POSITION.BOTTOM_CENTER,
+      });
     },
     rerender: () => {
-      send('RERENDER')
+      send('RERENDER');
     },
     hoveredMarker,
-  }
-}
+  };
+};
 
 export const Map: React.FunctionComponent = (): JSX.Element => {
   const {
@@ -321,10 +334,10 @@ export const Map: React.FunctionComponent = (): JSX.Element => {
     rerender,
     hoveredMarker,
     map,
-  } = useMap()
-  const [listOpen, setListOpen] = useState(false)
+  } = useMap();
+  const [listOpen, setListOpen] = useState(false);
 
-  const virtualLocations = state.context.pins.filter((pin) => pin.virtual)
+  const virtualLocations = state.context.pins.filter((pin) => pin.virtual);
 
   return (
     <div className="Map-Wrapper">
@@ -370,5 +383,5 @@ export const Map: React.FunctionComponent = (): JSX.Element => {
         <div className="Map" ref={container}></div>
       </div>
     </div>
-  )
-}
+  );
+};
