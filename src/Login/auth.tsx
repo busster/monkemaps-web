@@ -79,7 +79,7 @@ export const Login = (props: LoginProps): JSX.Element => {
         }
         //hardcode for now
         const response = await fetch(
-          `http://localhost:4000/monkemaps/auth/txn`,
+          `https://api.monkemaps.com/monkemaps/auth/txn`,
           {
             method: 'POST',
             headers: {
@@ -129,7 +129,7 @@ export const Login = (props: LoginProps): JSX.Element => {
         const signedMessage = await signMessage(encodedMessage);
         const signedAndEncodedMessage = bs58.encode(signedMessage);
         const response = await fetch(
-          `http://localhost:4000/monkemaps/auth/sign`,
+          `https://api.monkemaps.com/monkemaps/auth/sign`,
           {
             method: 'POST',
             headers: {
