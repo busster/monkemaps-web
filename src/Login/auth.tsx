@@ -117,10 +117,16 @@ export const Login = (props: LoginProps): JSX.Element => {
           'confirmed',
         );
         setToken({ token: res, hw: 'true', txn: signature });
-        toast.success('Success! Redirecting...', {
-          position: toast.POSITION.TOP_CENTER,
-        });
-        window.location.reload();
+        if (res && res.token) {
+          toast.success('Success! Redirecting...', {
+            position: toast.POSITION.TOP_CENTER,
+          });
+          window.location.reload();
+        } else {
+          toast.error('Unsuccessful. Make sure you own a monke.', {
+            position: toast.POSITION.TOP_CENTER,
+          });
+        }
       } else {
         const encodedMessage = new TextEncoder().encode(message);
         if (!walletId) throw new Error('Wallet not connected!');
@@ -145,10 +151,16 @@ export const Login = (props: LoginProps): JSX.Element => {
         );
         const tkn = await response.json();
         setToken({ token: tkn.token, hw: '' });
-        toast.success('Success! Redirecting...', {
-          position: toast.POSITION.TOP_CENTER,
-        });
-        window.location.reload();
+        if (tkn.token) {
+          toast.success('Success! Redirecting...', {
+            position: toast.POSITION.TOP_CENTER,
+          });
+          window.location.reload();
+        } else {
+          toast.error('Unsuccessful. Make sure you own a monke.', {
+            position: toast.POSITION.TOP_CENTER,
+          });
+        }
       }
     } catch (err: any) {
       console.log('ERROR >>>', err, err?.message);
