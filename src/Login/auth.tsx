@@ -117,6 +117,9 @@ export const Login = (props: LoginProps): JSX.Element => {
           'confirmed',
         )
         setToken({ token: res, hw: 'true', txn: signature })
+        toast.success('Success! Redirecting...', {
+          position: toast.POSITION.TOP_CENTER,
+        })
         window.location.reload()
       } else {
         const encodedMessage = new TextEncoder().encode(message)
@@ -142,6 +145,9 @@ export const Login = (props: LoginProps): JSX.Element => {
         )
         const tkn = await response.json()
         setToken({ token: tkn.token, hw: '' })
+        toast.success('Success! Redirecting...', {
+          position: toast.POSITION.TOP_CENTER,
+        })
         window.location.reload()
       }
     } catch (err: any) {
