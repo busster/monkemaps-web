@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { getParsedNftAccountsByOwner } from '@nfteyez/sol-rayz';
-import { Link, Navigate } from 'react-router-dom';
-
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 
 import { useActor } from '@xstate/react';
@@ -22,9 +21,19 @@ export const UserInformation = (): JSX.Element => {
   const [nftArrayLoading, setNftArrayLoading] = useState(true);
   const [nftArray, setNftArray] = useState<NftData[]>([]);
   const walletId = publicKey?.toBase58();
+  const navigate = useNavigate();
   const [state, send] = useActor(
     UserMachine.get({ wallet: walletContext, connection }),
   );
+
+  wallet?.adapter?.addListener('disconnect', () => {
+    console.log('disconnected');
+    if (getToken()?.token) {
+      clearToken();
+      navigate(0);
+    }
+  });
+
   console.log(state);
   useEffect(() => {
     let active = true;
@@ -63,13 +72,6 @@ export const UserInformation = (): JSX.Element => {
       setNftArray(nftResult);
     }
   }, [walletId, connection]);
-
-  wallet?.adapter?.addListener('disconnect', () => {
-    if (getToken()?.token) {
-      clearToken();
-      window.location.reload();
-    }
-  });
 
   // const state = {matches: (s: any) => Boolean, value: '', context: {lat: 0, lng: 0}};
   // const send = (s: string, a?: any) => {}

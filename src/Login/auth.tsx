@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import {
   Connection,
   PublicKey,
@@ -8,8 +7,8 @@ import {
 } from '@solana/web3.js';
 import { toast } from 'react-toastify';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { CONSTANTS } from '../constants';
-import { clearToken, getToken } from '../utils/tokenUtils';
 import {
   VStack,
   Checkbox,
@@ -31,22 +30,14 @@ export type LoginProps = {
 
 export const Login = (props: LoginProps): JSX.Element => {
   const { setToken } = props;
+  const navigate = useNavigate();
   const {
-    wallet,
     publicKey,
     connected,
-    connecting,
     connect,
     signMessage,
     signTransaction,
   } = useWallet();
-
-  wallet?.adapter?.addListener('disconnect', () => {
-    if (getToken()?.token) {
-      clearToken();
-      window.location.reload();
-    }
-  });
 
   const { connection } = useConnection();
   const [isHardwareWallet, setIsHardwareWallet] = useState(false);
@@ -110,7 +101,7 @@ export const Login = (props: LoginProps): JSX.Element => {
           toast.success('Success! Redirecting...', {
             position: toast.POSITION.TOP_CENTER,
           });
-          window.location.reload();
+          navigate(0);
         } else {
           toast.error(
             `Unsuccessful. Make sure you own a monke. ${res?.msg ?? ''}`,
@@ -144,7 +135,7 @@ export const Login = (props: LoginProps): JSX.Element => {
           toast.success('Success! Redirecting...', {
             position: toast.POSITION.TOP_CENTER,
           });
-          window.location.reload();
+          navigate(0);
         } else {
           toast.error(
             `Unsuccessful. Make sure you own a monke. ${tkn?.msg ?? ''}`,
@@ -189,11 +180,6 @@ export const Login = (props: LoginProps): JSX.Element => {
             <Heading fontSize={'Large'}>Authenticate your Monke Wallet</Heading>
           </Box>
         </Center>
-        <Box height="50px">
-          <Center h="50px">
-            <WalletMultiButton />
-          </Center>
-        </Box>
         <Box height="10px">
           <Center h="50px">
             <Checkbox

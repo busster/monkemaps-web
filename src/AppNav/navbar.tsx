@@ -58,7 +58,7 @@ export const AppNavBar = () => {
         </Link>
       </div>
       <div className="App__nav-links">
-        {publicKey ? (
+        {publicKey && token?.token ? (
           <Link className="App__nav-link" to="/profile">
             <img
               className="App__nav-link-logo"

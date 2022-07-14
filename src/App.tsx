@@ -72,16 +72,12 @@ export const App = () => {
         <ConnectionProvider endpoint={endpoint}>
           <WalletProvider wallets={wallets} autoConnect>
             <WalletModalProvider>
-              {!token?.token ? (
-                <Login setToken={setToken} />
-              ) : (
-                <HashRouter>
-                  <div>
-                    <AppNavBar />
-                    <AppRoutes />
-                  </div>
-                </HashRouter>
-              )}
+              <HashRouter>
+                <div>
+                  <AppNavBar />
+                  <AppRoutes />
+                </div>
+              </HashRouter>
               <ToastContainer />
             </WalletModalProvider>
           </WalletProvider>
