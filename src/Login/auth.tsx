@@ -80,41 +80,44 @@ export const Login = (props: LoginProps): JSX.Element => {
         });
 
         const res = await response.json();
-        const latestBlockHash = await conn.getLatestBlockhash();
-        const walletPk = new PublicKey(walletId);
-        const transaction = new Transaction();
-        transaction.feePayer = walletPk;
-        transaction.recentBlockhash = latestBlockHash.blockhash;
-        transaction.add(
-          SystemProgram.transfer({
-            fromPubkey: walletPk,
-            toPubkey: new PublicKey(res.destination),
-            lamports: res.lamports,
-          }),
-        );
-        const signedTxn = await signTransaction(transaction);
-        const txnSerialized = signedTxn.serialize();
-        const signature = await conn.sendRawTransaction(txnSerialized, {
-          skipPreflight: true,
-        });
-        await conn.confirmTransaction(
-          {
-            blockhash: latestBlockHash.blockhash,
-            lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-            signature,
-          },
-          'confirmed',
-        );
-        setToken({ token: res, hw: 'true', txn: signature });
-        if (res && res.token) {
+        if (res?.token) {
+          const latestBlockHash = await conn.getLatestBlockhash();
+          const walletPk = new PublicKey(walletId);
+          const transaction = new Transaction();
+          transaction.feePayer = walletPk;
+          transaction.recentBlockhash = latestBlockHash.blockhash;
+          transaction.add(
+            SystemProgram.transfer({
+              fromPubkey: walletPk,
+              toPubkey: new PublicKey(res.destination),
+              lamports: res.lamports,
+            }),
+          );
+          const signedTxn = await signTransaction(transaction);
+          const txnSerialized = signedTxn.serialize();
+          const signature = await conn.sendRawTransaction(txnSerialized, {
+            skipPreflight: true,
+          });
+          await conn.confirmTransaction(
+            {
+              blockhash: latestBlockHash.blockhash,
+              lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+              signature,
+            },
+            'confirmed',
+          );
+          setToken({ token: res, hw: 'true', txn: signature });
           toast.success('Success! Redirecting...', {
             position: toast.POSITION.TOP_CENTER,
           });
           window.location.reload();
         } else {
-          toast.error('Unsuccessful. Make sure you own a monke.', {
-            position: toast.POSITION.TOP_CENTER,
-          });
+          toast.error(
+            `Unsuccessful. Make sure you own a monke. ${res?.msg ?? ''}`,
+            {
+              position: toast.POSITION.TOP_CENTER,
+            },
+          );
         }
       } else {
         const encodedMessage = new TextEncoder().encode(message);
@@ -143,9 +146,12 @@ export const Login = (props: LoginProps): JSX.Element => {
           });
           window.location.reload();
         } else {
-          toast.error('Unsuccessful. Make sure you own a monke.', {
-            position: toast.POSITION.TOP_CENTER,
-          });
+          toast.error(
+            `Unsuccessful. Make sure you own a monke. ${tkn?.msg ?? ''}`,
+            {
+              position: toast.POSITION.TOP_CENTER,
+            },
+          );
         }
       }
     } catch (err: any) {
