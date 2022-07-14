@@ -88,7 +88,7 @@ type MapEvents =
 
 const fetchEvents = async () => {
   const token = getToken();
-  if (token) {
+  if (token && token?.token) {
     const response = await fetch(`${CONSTANTS.API_URL}/events`, {
       method: 'GET',
       headers: {
@@ -107,11 +107,15 @@ const fetchEvents = async () => {
       return Promise.reject({ status: response.status });
     }
   }
+  else {
+    console.error('No token');
+    return Promise.resolve([]);
+  }
 };
 
 const fetchUsers = async () => {
   const token = getToken();
-  if (token) {
+  if (token && token?.token) {
     const response = await fetch(`${CONSTANTS.API_URL}/users`, {
       method: 'GET',
       headers: {
@@ -129,6 +133,10 @@ const fetchUsers = async () => {
     } else {
       return Promise.reject({ status: response.status });
     }
+  }
+  else {
+    console.error('No token');
+    return Promise.resolve([]);
   }
 };
 
@@ -205,7 +213,7 @@ export const mapMachine = createMachine<MapContext, MapEvents>(
       }),
       setPins: assign((context, event) => {
         const pinsData = (event as any).data.events;
-        const pinMap = pinsData.reduce((acc: Map<string, any>, next: any) => {
+        const pinMap = pinsData?.reduce((acc: Map<string, any>, next: any) => {
           const coords = next.location.coordinates;
           const key = coords.join(',');
           const existing = acc.get(key);
@@ -214,7 +222,7 @@ export const mapMachine = createMachine<MapContext, MapEvents>(
           return acc;
         }, context.pinMap);
 
-        const pins = pinsData.map((p: any) => {
+        const pins = pinsData?.map((p: any) => {
           const {
             id,
             startDate,
@@ -262,7 +270,7 @@ export const mapMachine = createMachine<MapContext, MapEvents>(
       setUsers: assign((context, event) => {
         const pinsData = (event as any).data.users;
         const pinMap = pinsData
-          .filter((p: any) => p.location.text !== '')
+          ?.filter((p: any) => p.location.text !== '')
           .reduce((acc: Map<string, any>, next: any) => {
             const coords = [next.location.latitude, next.location.longitude];
             const key = coords.join(',');
@@ -272,7 +280,7 @@ export const mapMachine = createMachine<MapContext, MapEvents>(
             return acc;
           }, context.pinMap);
 
-        const users = pinsData.map((p: any) => {
+        const users = pinsData?.map((p: any) => {
           const {
             walletId,
             twitter,

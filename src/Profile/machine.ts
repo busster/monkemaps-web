@@ -234,23 +234,27 @@ const mapHeaders = async (context: UserContext) => {
 
 const fetchUser = async (context: UserContext) => {
   const token = getToken();
-  const response = await fetch(
-    `${CONSTANTS.API_URL}/users/${context.walletId}`,
-    {
-      method: 'GET',
-      headers: {
-        'x-auth-token': token?.token,
-        'x-auth-txn': token?.txn,
-        'x-auth-hw': token?.hw,
+  if (token) {
+    const response = await fetch(
+      `${CONSTANTS.API_URL}/users/${context.walletId}`,
+      {
+        method: 'GET',
+        headers: {
+          'x-auth-token': token?.token,
+          'x-auth-txn': token?.txn,
+          'x-auth-hw': token?.hw,
+        },
       },
-    },
-  );
+    );
 
-  const res = await response.json();
-  if (response.ok) {
-    return res;
+    const res = await response.json();
+    if (response.ok) {
+      return res;
+    } else {
+      return Promise.reject({ status: response.status });
+    }
   } else {
-    return Promise.reject({ status: response.status });
+    return Promise.reject({ status: 401 });
   }
 };
 
@@ -295,52 +299,9 @@ const findLocation = (
 
 const createUser = async (context: UserContext) => {
   const token = getToken();
-  const response = await fetch(`${CONSTANTS.API_URL}/users`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-auth-token': token?.token,
-      'x-auth-txn': token?.txn,
-      'x-auth-hw': token?.hw,
-    },
-    body: JSON.stringify({
-      walletId: context.walletId,
-      nickName: context.nickName,
-      twitter: context.twitter,
-      github: context.github,
-      telegram: context.telegram,
-      discord: context.discord,
-      location: {
-        ...context.location,
-        latitude: context.location.coordinates[0],
-        longitude: context.location.coordinates[0],
-      },
-      image: context.nft.imageUri,
-      monkeId: context.nft.id,
-      monkeNumber: context.nft.monkeNo,
-    }),
-  });
-
-  if (response.ok) {
-    toast.success('Created successfully!', {
-      position: toast.POSITION.TOP_CENTER,
-      autoClose: 2500,
-    });
-    return Promise.resolve();
-  } else {
-    toast.error('Failed to create user.', {
-      position: toast.POSITION.TOP_CENTER,
-    });
-    return Promise.reject({ status: response.status });
-  }
-};
-
-const updateUser = async (context: UserContext) => {
-  const token = getToken();
-  const response = await fetch(
-    `${CONSTANTS.API_URL}/users/${context.walletId}`,
-    {
-      method: 'PUT',
+  if (token && token?.token) {
+    const response = await fetch(`${CONSTANTS.API_URL}/users`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-auth-token': token?.token,
@@ -357,54 +318,109 @@ const updateUser = async (context: UserContext) => {
         location: {
           ...context.location,
           latitude: context.location.coordinates[0],
-          longitude: context.location.coordinates[1],
+          longitude: context.location.coordinates[0],
         },
         image: context.nft.imageUri,
         monkeId: context.nft.id,
         monkeNumber: context.nft.monkeNo,
       }),
-    },
-  );
+    });
 
-  if (response.ok) {
-    toast.success('Updated successfully!', {
-      position: toast.POSITION.TOP_CENTER,
-      autoClose: 2500,
-    });
-    return Promise.resolve();
+    if (response.ok) {
+      toast.success('Created successfully!', {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2500,
+      });
+      return Promise.resolve();
+    } else {
+      toast.error('Failed to create user.', {
+        position: toast.POSITION.TOP_CENTER,
+      });
+      return Promise.reject({ status: response.status });
+    }
   } else {
-    toast.error('Update failed! Please try again.', {
-      position: toast.POSITION.TOP_CENTER,
-    });
-    return Promise.reject({ status: response.status });
+    return Promise.reject({ status: 401 });
+  }
+};
+
+const updateUser = async (context: UserContext) => {
+  const token = getToken();
+  if (token && token?.token) {
+    const response = await fetch(
+      `${CONSTANTS.API_URL}/users/${context.walletId}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token?.token,
+          'x-auth-txn': token?.txn,
+          'x-auth-hw': token?.hw,
+        },
+        body: JSON.stringify({
+          walletId: context.walletId,
+          nickName: context.nickName,
+          twitter: context.twitter,
+          github: context.github,
+          telegram: context.telegram,
+          discord: context.discord,
+          location: {
+            ...context.location,
+            latitude: context.location.coordinates[0],
+            longitude: context.location.coordinates[1],
+          },
+          image: context.nft.imageUri,
+          monkeId: context.nft.id,
+          monkeNumber: context.nft.monkeNo,
+        }),
+      },
+    );
+
+    if (response.ok) {
+      toast.success('Updated successfully!', {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2500,
+      });
+      return Promise.resolve();
+    } else {
+      toast.error('Update failed! Please try again.', {
+        position: toast.POSITION.TOP_CENTER,
+      });
+      return Promise.reject({ status: response.status });
+    }
+  } else {
+    return Promise.reject({ status: 401 });
   }
 };
 
 const deleteUser = async (context: UserContext) => {
   const token = getToken();
-  const response = await fetch(
-    `${CONSTANTS.API_URL}/users/${context.walletId}`,
-    {
-      method: 'DELETE',
-      headers: {
-        'x-auth-token': token?.token,
-        'x-auth-txn': token?.txn,
-        'x-auth-hw': token?.hw,
+  if (token && token?.token) {
+    const response = await fetch(
+      `${CONSTANTS.API_URL}/users/${context.walletId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'x-auth-token': token?.token,
+          'x-auth-txn': token?.txn,
+          'x-auth-hw': token?.hw,
+        },
       },
-    },
-  );
+    );
 
-  if (response.ok) {
-    toast.warn('Deleted successfully!', {
-      position: toast.POSITION.TOP_CENTER,
-      autoClose: 2500,
-    });
-    return Promise.resolve();
+    if (response.ok) {
+      toast.warn('Deleted successfully!', {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2500,
+      });
+      return Promise.resolve();
+    } else {
+      toast.error('Deletion failed. Please try again', {
+        position: toast.POSITION.TOP_CENTER,
+      });
+      return Promise.reject({ status: response.status });
+    }
   } else {
-    toast.error('Deletion failed. Please try again', {
-      position: toast.POSITION.TOP_CENTER,
-    });
-    return Promise.reject({ status: response.status });
+    return Promise.reject({ status: 401 });
   }
 };
 
