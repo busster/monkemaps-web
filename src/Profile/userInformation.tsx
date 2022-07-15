@@ -43,6 +43,7 @@ export const UserInformation = (): JSX.Element => {
     };
 
     async function load() {
+      setNftArrayLoading(true);
       setNftArray([]);
       let nftResult: NftData[] = [];
       if (walletId) {
@@ -125,7 +126,7 @@ export const UserInformation = (): JSX.Element => {
                 Cancel
               </button>
             )}
-            {['edit', 'create'].some(state.matches) && (
+            {!nftArrayLoading && ['edit', 'create'].some(state.matches) &&  (
               <button
                 className="Profile__save button button--save"
                 onClick={() => send('SAVE')}
@@ -190,7 +191,7 @@ export const UserInformation = (): JSX.Element => {
                                 nft: {
                                   id: x.mint,
                                   imageUri: x.imageUri,
-                                  monkeNo: x.nftNumber,
+                                  monkeNumber: x.nftNumber,
                                 },
                               })
                             }

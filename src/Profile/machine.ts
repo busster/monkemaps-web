@@ -61,7 +61,7 @@ export const lookupPlaces = async (searchTerm: string) => {
 type NFT = {
   imageUri: string | undefined;
   id: string;
-  monkeNo: string | undefined;
+  monkeNumber: string | undefined;
 };
 type Location = {
   id: string;
@@ -322,7 +322,7 @@ const createUser = async (context: UserContext) => {
         },
         image: context.nft.imageUri,
         monkeId: context.nft.id,
-        monkeNumber: context.nft.monkeNo,
+        monkeNumber: context.nft.monkeNumber,
       }),
     });
 
@@ -370,7 +370,7 @@ const updateUser = async (context: UserContext) => {
           },
           image: context.nft.imageUri,
           monkeId: context.nft.id,
-          monkeNumber: context.nft.monkeNo,
+          monkeNumber: context.nft.monkeNumber,
         }),
       },
     );
@@ -782,7 +782,7 @@ export const createUserMachine = ({
           nft: (context, event: any) => ({
             id: event.data.monkeId || '',
             imageUri: event.data.image ?? '',
-            monkeNo: event.data?.monkeNo ?? event.data?.monkeNumber ?? '',
+            monkeNumber: event.data?.monkeNumber ?? '',
           }),
         }),
         setNft: assign({
