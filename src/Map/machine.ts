@@ -12,7 +12,7 @@ import { customAlphabet } from 'nanoid';
 import { DateTime } from 'luxon';
 
 import { CONSTANTS } from '../constants';
-import { getToken } from '../utils/tokenUtils';
+import { getToken, clearToken } from '../utils/tokenUtils';
 
 const nanoid = customAlphabet(
   '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -103,7 +103,14 @@ const fetchEvents = async () => {
 
     if (response.ok) {
       return res;
-    } else {
+    }
+    else if (response.status === 418) {
+      console.log(response.status, res);
+      clearToken();
+      window.location.reload();
+      return Promise.reject({ status: response.status });
+    } 
+    else {
       return Promise.reject({ status: response.status });
     }
   }
@@ -130,7 +137,14 @@ const fetchUsers = async () => {
 
     if (response.ok) {
       return res;
-    } else {
+    }
+    else if (response.status === 418) {
+      console.log(response.status, res);
+      clearToken();
+      window.location.reload();
+      return Promise.reject({ status: response.status });
+    } 
+    else {
       return Promise.reject({ status: response.status });
     }
   }

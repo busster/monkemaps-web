@@ -250,7 +250,14 @@ const fetchUser = async (context: UserContext) => {
     const res = await response.json();
     if (response.ok) {
       return res;
-    } else {
+    }
+    else if (response.status === 418) {
+      console.log(response.status, res);
+      clearToken();
+      window.location.reload();
+      return Promise.reject({ status: response.status });
+    }
+    else {
       return Promise.reject({ status: response.status });
     }
   } else {
@@ -332,7 +339,14 @@ const createUser = async (context: UserContext) => {
         autoClose: 2500,
       });
       return Promise.resolve();
-    } else {
+    }
+    else if (response.status === 418) {
+      console.log(response.status);
+      clearToken();
+      window.location.reload();
+      return Promise.reject({ status: response.status });
+    } 
+    else {
       toast.error('Failed to create user.', {
         position: toast.POSITION.TOP_CENTER,
       });
@@ -381,7 +395,14 @@ const updateUser = async (context: UserContext) => {
         autoClose: 2500,
       });
       return Promise.resolve();
-    } else {
+    }
+    else if (response.status === 418) {
+      console.log(response.status);
+      clearToken();
+      window.location.reload();
+      return Promise.reject({ status: response.status });
+    } 
+    else {
       toast.error('Update failed! Please try again.', {
         position: toast.POSITION.TOP_CENTER,
       });
@@ -413,7 +434,14 @@ const deleteUser = async (context: UserContext) => {
         autoClose: 2500,
       });
       return Promise.resolve();
-    } else {
+    }
+    else if (response.status === 418) {
+      console.log(response.status);
+      clearToken();
+      window.location.reload();
+      return Promise.reject({ status: response.status });
+    } 
+    else {
       toast.error('Deletion failed. Please try again', {
         position: toast.POSITION.TOP_CENTER,
       });
