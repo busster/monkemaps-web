@@ -234,7 +234,7 @@ const mapHeaders = async (context: UserContext) => {
 
 const fetchUser = async (context: UserContext) => {
   const token = getToken();
-  if (token) {
+  if (token && token?.token) {
     const response = await fetch(
       `${CONSTANTS.API_URL}/users/${context.walletId}`,
       {
