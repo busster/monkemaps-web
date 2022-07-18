@@ -15,7 +15,7 @@ import { MDInput, MDDropdownSearch, MDSwitch, MDCheckbox } from '../design';
 import { clearToken, getToken } from '../utils/tokenUtils';
 
 export const UserInformation = (): JSX.Element => {
-  const { wallet, publicKey } = useWallet();
+  const { wallet, publicKey, connecting } = useWallet();
   const walletContext = useWallet();
   const { connection } = useConnection();
   const [nftArrayLoading, setNftArrayLoading] = useState(true);
@@ -28,7 +28,7 @@ export const UserInformation = (): JSX.Element => {
 
   wallet?.adapter?.addListener('disconnect', () => {
     console.log('disconnected');
-    if (getToken()?.token) {
+    if (getToken()?.token && !connecting) {
       clearToken();
       navigate(0);
     }
