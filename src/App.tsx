@@ -43,7 +43,7 @@ export const App = () => {
   const network =
     (process.env.REACT_APP_SOLANA_ENV as WalletAdapterNetwork) ??
     WalletAdapterNetwork.Devnet;
-  const rpc = 'https://monkervkmgtpm2tswbcdigjud2jif.xyz2.hyperplane.dev/';
+  const rpc = 'https://monke8127d577985245538ac648fe0969201d.xyz2.hyperplane.dev/';
   let networkUrl = rpc?.includes('https') ? rpc : clusterApiUrl(network);
 
   // You can also provide a custom RPC endpoint.

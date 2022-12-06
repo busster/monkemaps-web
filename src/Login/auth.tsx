@@ -135,6 +135,7 @@ export const Login = (props: LoginProps): JSX.Element => {
           toast.success('Success! Redirecting...', {
             position: toast.POSITION.TOP_CENTER,
           });
+          await new Promise(resolve => setTimeout(resolve, 500));
           navigate(0);
         } else {
           toast.error(
