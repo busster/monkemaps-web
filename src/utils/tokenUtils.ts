@@ -1,5 +1,5 @@
 export function getToken() {
-  const tokenString = localStorage.getItem('token') || '{}';
+  const tokenString = sessionStorage.getItem('token') || '{}';
   const userToken = JSON.parse(tokenString);
   return {
     token:
@@ -12,9 +12,9 @@ export function getToken() {
 }
 
 export function clearToken() {
-  const tokenString = localStorage.getItem('token') || '{}';
+  const tokenString = sessionStorage.getItem('token') || '{}';
   const userToken = JSON.parse(tokenString);
   if (userToken) {
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
   }
 }
