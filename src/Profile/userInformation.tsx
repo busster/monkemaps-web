@@ -21,6 +21,16 @@ export const UserInformation = (): JSX.Element => {
   const [nftArrayLoading, setNftArrayLoading] = useState(true);
   const [nftArray, setNftArray] = useState<NftData[]>([]);
   const walletId = publicKey?.toBase58();
+  //Hack until redeployed to a different server and domain name is remapped
+  const getUpdateAuthority = (): string => {
+    //check for old update authority
+    if (process.env.REACT_APP_NFT_UA === '9uBX3ASjxWvNBAD1xjbVaKA74mWGZys3RGSF7DdeDD3F') {
+      return 'SMBhYe5hTjZB5ioeaFxnYPn2cDU893ymgMkgYipgJw4' //new update authority
+    }
+    else {
+      return process.env.REACT_APP_NFT_UA as string
+    }
+  }
   const navigate = useNavigate();
   const [state, send] = useActor(
     UserMachine.get({ wallet: walletContext, connection }),
@@ -52,7 +62,7 @@ export const UserInformation = (): JSX.Element => {
           connection,
         });
         nftResult = nftResult.filter(
-          (x) => x.updateAuthority === process.env.REACT_APP_NFT_UA,
+          (x) => x.updateAuthority === getUpdateAuthority(),
         );
         const nftChunks = chunkItems(nftResult);
         for (const chunk of nftChunks) {
