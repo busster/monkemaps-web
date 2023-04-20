@@ -25,7 +25,7 @@ export const UserInformation = (): JSX.Element => {
   const getUpdateAuthority = (): string => {
     //check for old update authority
     if (process.env.REACT_APP_NFT_UA === '9uBX3ASjxWvNBAD1xjbVaKA74mWGZys3RGSF7DdeDD3F') {
-      return 'SMBhYe5hTjZB5ioeaFxnYPn2cDU893ymgMkgYipgJw4' //new update authority
+      return 'mdaoxg4DVGptU4WSpzGyVpK3zqsgn7Qzx5XNgWTcEA2' //new update authority
     }
     else {
       return process.env.REACT_APP_NFT_UA as string
