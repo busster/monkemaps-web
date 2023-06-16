@@ -30,7 +30,7 @@ import { Login } from './Login/auth';
 import useToken from './Hooks/useToken';
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { Fonts } from './design/fonts/Font';
-
+window.Buffer = window.Buffer || require("buffer").Buffer;
 const theme = extendTheme({
   fonts: {
     heading: 'Space Grotesk',
@@ -55,11 +55,6 @@ export const App = () => {
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
-      new LedgerWalletAdapter(),
-      new GlowWalletAdapter(),
-      new SlopeWalletAdapter(),
-      new SolflareWalletAdapter({ network }),
-      new TorusWalletAdapter(),
     ],
     [network],
   );

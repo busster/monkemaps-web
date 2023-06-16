@@ -1,31 +1,15 @@
-import React, { FC, useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import {
-  ConnectionProvider,
   useWallet,
-  WalletProvider,
   useConnection,
 } from '@solana/wallet-adapter-react';
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
-  GlowWalletAdapter,
-  PhantomWalletAdapter,
-  SlopeWalletAdapter,
-  SolflareWalletAdapter,
-  SolletExtensionWalletAdapter,
-  SolletWalletAdapter,
-  TorusWalletAdapter,
-} from '@solana/wallet-adapter-wallets';
-import {
-  WalletModalProvider,
-  WalletDisconnectButton,
   WalletMultiButton,
 } from '@solana/wallet-adapter-react-ui';
-import { clusterApiUrl } from '@solana/web3.js';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import '@solana/wallet-adapter-react-ui/styles.css';
 import '../App.css';
-import { useActor } from '@xstate/react';
 import { UserMachine } from '../Profile/machine';
 import { getToken, clearToken } from '../utils/tokenUtils';
 import { Button } from '@chakra-ui/react';
